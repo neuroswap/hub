@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kour.io | Neural Hub</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            letter-spacing: 5px;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            margin: 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #00ff88;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        /* Script Section */
+        .script-box {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), transparent);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: black;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--primary);
+        }
+
+        /* Chat Section */
+        #chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .msg {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            width: fit-content;
+            max-width: 80%;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+        }
+
+        input {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div class="container">
+    <header>
+        <h1>NEURAL HUB</h1>
+        <div class="status-badge">● Undetected</div>
+    </header>
+
+    <div class="card script-box">
+        <h2>Kour.io V3 Script</h2>
+        <p>Advanced Aimbot, ESP, and Movement Mods.</p>
+        <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=b61323f3-d211-4a7d-a58e-8b199d2549d1+editor" class="btn">INSTALL SCRIPT</a>
+    </div>
+
+    <div class="card" id="chat-container">
+        <h3>Global Live Chat</h3>
+        <div id="messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="username" placeholder="Username" style="width: 100px; flex-grow: 0;">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button class="btn" style="margin:0; padding: 10px 20px;" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. STARFIELD ANIMATION
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    for(let i=0; i<200; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2,
+            speed: Math.random() * 0.5
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+            ctx.fill();
+            s.y += s.speed;
+            if(s.y > canvas.height) s.y = 0;
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // 2. FIREBASE LOGIC
+    const firebaseConfig = {
+        apiKey: "AIzaSy...",
+        databaseURL: "https://neuro-chat-8fe18-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function sendMessage() {
+        const user = document.getElementById('username').value || "Guest";
+        const text = document.getElementById('messageInput').value;
+        if(text) {
+            db.ref('messages').push().set({
+                username: user,
+                message: text,
+                timestamp: Date.now()
+            });
+            document.getElementById('messageInput').value = "";
+        }
+    }
+
+    db.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
+        const data = snapshot.val();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'msg';
+        msgDiv.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+        document.getElementById('messages').appendChild(msgDiv);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    });
+</script>
+
+</body>
+</html>
