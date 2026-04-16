@@ -4,192 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEUROHUB | Kour.io</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #00f2ff;
-            --secondary: #ff007f;
-            --bg: #010101;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.1);
-            --glow: 0 0 20px rgba(0, 242, 255, 0.5);
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
-
-        #starfield {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        /* --- LOGIN OVERLAY --- */
-        #auth-gate {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .auth-box {
-            background: #080808;
-            border: 2px solid var(--primary);
-            padding: 40px;
-            border-radius: 20px;
-            width: 400px;
-            text-align: center;
-            box-shadow: var(--glow);
-        }
-
-        input {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            padding: 15px;
-            color: white;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            outline: none;
-        }
-
+        :root { --primary: #00f2ff; --secondary: #ff007f; --bg: #010101; --glass: rgba(255, 255, 255, 0.03); }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        #starfield { position: fixed; inset: 0; z-index: -1; }
+        
+        /* AUTH UI */
+        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: #080808; border: 2px solid var(--primary); padding: 40px; border-radius: 20px; width: 400px; text-align: center; box-shadow: 0 0 20px var(--primary); }
+        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; color: white; border-radius: 10px; margin-bottom: 15px; outline: none; }
         input:focus { border-color: var(--primary); }
+        
+        .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 15px; border-radius: 100px; border: none; cursor: pointer; width: 100%; transition: 0.3s; margin-top: 10px; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary); }
+        .toggle-link { color: var(--primary); cursor: pointer; font-size: 0.8rem; text-decoration: underline; margin-top: 15px; display: block; }
 
-        /* --- MAIN UI SLIDE ANIMATION --- */
-        @keyframes slideUp {
-            from { transform: translateY(100vh); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        #main-ui {
-            display: none;
-            height: 100vh;
-            padding: 40px;
-            flex-direction: column;
-            align-items: center;
-            animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            letter-spacing: 15px;
-            margin: 0;
-            background: linear-gradient(to right, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px var(--primary));
-        }
-
-        /* --- BIG ROUND BUTTON --- */
-        .install-btn {
-            background: var(--primary);
-            color: #000;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 1.5rem;
-            padding: 25px 70px;
-            border-radius: 100px;
-            text-decoration: none;
-            display: inline-block;
-            transition: 0.3s;
-            box-shadow: var(--glow);
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        .install-btn:hover {
-            transform: scale(1.1);
-            background: #fff;
-            box-shadow: 0 0 40px var(--primary);
-        }
-
-        /* --- GRID CONTENT --- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 40px;
-        }
-
-        .panel {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 25px;
-        }
-
-        .feat-item {
-            color: var(--primary);
-            font-family: 'Orbitron', sans-serif;
-            text-transform: uppercase;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        /* --- CHAT AREA --- */
-        #chat-box {
-            height: 300px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 10px;
-        }
-
-        .msg {
-            background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .msg.owner { border-left: 3px solid var(--secondary); color: var(--secondary); }
-
-        .chat-input-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        /* --- ADMIN MODE --- */
-        body.admin-mode h1 { background: linear-gradient(to right, #fff, var(--secondary)); }
-        body.admin-mode .install-btn { background: var(--secondary); box-shadow: 0 0 20px var(--secondary); }
-
+        /* MAIN UI */
+        #main-ui { display: none; height: 100vh; padding: 40px; flex-direction: column; align-items: center; animation: slideUp 1s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        h1 { font-family: 'Orbitron'; font-size: 3.5rem; letter-spacing: 10px; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
 <body>
@@ -198,56 +35,22 @@
 
 <div id="auth-gate">
     <div class="auth-box">
-        <h2 style="font-family: 'Orbitron'; color: var(--primary);">NEUROHUB LOGIN</h2>
+        <h2 id="auth-title" style="font-family: 'Orbitron'; color: var(--primary);">NEURO LOGIN</h2>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button class="install-btn" style="padding: 15px; width: 100%; font-size: 1rem;" onclick="login()">AUTHORIZE</button>
+        <button id="auth-btn" class="btn" onclick="handleAuth()">LOGIN</button>
+        <span id="toggle-text" class="toggle-link" onclick="toggleAuthMode()">Don't have an account? Sign Up</span>
+        <p id="auth-msg" style="font-size: 0.8rem; color: #ff4444; margin-top: 10px;"></p>
     </div>
 </div>
 
 <div id="main-ui">
-    <div class="hero">
-        <h1>NEUROHUB</h1>
-        <p style="font-family: 'Orbitron'; color: var(--primary); letter-spacing: 5px;">KOUR.IO CHEAT HUB</p>
-        <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=b61323f3-d211-4a7d-a58e-8b199d2549d1+editor" class="install-btn">INSTALL NOW</a>
-    </div>
-
-    <div class="grid">
-        <div class="panel">
-            <h3 style="font-family: 'Orbitron';">FEATURES</h3>
-            <div class="feat-item">● AIMBOT</div>
-            <div class="feat-item">● ESP</div>
-            <div class="feat-item">● CROSSHAIR</div>
-            <div class="feat-item">● FULL MENU</div>
-        </div>
-
-        <div class="panel" style="grid-column: span 2;">
-            <h3 style="font-family: 'Orbitron';">GLOBAL TRANSMISSION (24H)</h3>
-            <div id="chat-box"></div>
-            <div class="chat-input-row">
-                <input type="text" id="chatInput" placeholder="Type a message..." style="margin:0;">
-                <button class="install-btn" style="margin:0; padding: 10px 20px; font-size: 0.8rem;" onclick="send()">SEND</button>
-            </div>
-        </div>
-
-        <div class="panel" style="grid-column: span 3;">
-            <h3 style="font-family: 'Orbitron';">SUPPORT TICKETS</h3>
-            <div id="ticket-area" style="display:flex; gap: 20px;">
-                <div style="flex:1;">
-                    <input type="text" id="t-subject" placeholder="Subject">
-                    <textarea id="t-msg" placeholder="Describe issue..." style="width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; color:white; padding:10px;"></textarea>
-                    <button class="install-btn" style="padding:10px; font-size:0.8rem;" onclick="fileTicket()">FILE TICKET</button>
-                </div>
-                <div id="ticket-list" style="flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:10px; max-height: 150px; overflow-y: auto;">
-                    <em>No active tickets.</em>
-                </div>
-            </div>
-        </div>
-    </div>
+    <h1>NEUROHUB</h1>
+    <p style="color: var(--primary);">WELCOME BACK, <span id="user-display"></span></p>
+    <a href="chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=b61323f3-d211-4a7d-a58e-8b199d2549d1+editor" class="btn" style="width: auto; padding: 20px 60px;">INSTALL SCRIPT</a>
 </div>
 
 <script>
-    // --- API CONFIG (SECURED PLACEHOLDER) ---
     const firebaseConfig = {
         apiKey: "AIzaSyC-tWfooosC689hzDUC4S5CXL7dJ3yANuc",
         authDomain: "neuro-chat-8fe18.firebaseapp.com",
@@ -260,74 +63,70 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let user = "";
-    let isOwner = false;
+    let isSignUp = false;
 
-    // --- FALLING STARS ---
+    function toggleAuthMode() {
+        isSignUp = !isSignUp;
+        document.getElementById('auth-title').innerText = isSignUp ? "NEURO SIGN UP" : "NEURO LOGIN";
+        document.getElementById('auth-btn').innerText = isSignUp ? "CREATE ACCOUNT" : "LOGIN";
+        document.getElementById('toggle-text').innerText = isSignUp ? "Already have an account? Login" : "Don't have an account? Sign Up";
+    }
+
+    async function handleAuth() {
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value.trim();
+        const msg = document.getElementById('auth-msg');
+
+        if(!user || !pass) return;
+
+        // Owner Hardcode
+        if(user === "neuro(owner)" && pass === "admin") {
+            enterHub(user);
+            return;
+        }
+
+        const userRef = db.ref('users/' + user);
+
+        if(isSignUp) {
+            // Check if user exists
+            const snapshot = await userRef.once('value');
+            if(snapshot.exists()) {
+                msg.innerText = "Username already taken!";
+            } else {
+                await userRef.set({ password: pass });
+                enterHub(user);
+            }
+        } else {
+            // Login check
+            const snapshot = await userRef.once('value');
+            if(snapshot.exists() && snapshot.val().password === pass) {
+                enterHub(user);
+            } else {
+                msg.innerText = "Invalid username or password!";
+            }
+        }
+    }
+
+    function enterHub(username) {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('main-ui').style.display = 'flex';
+        document.getElementById('user-display').innerText = username.toUpperCase();
+    }
+
+    // Starfield Animation
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
-
-    function initStars() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        for(let i=0; i<100; i++) {
-            stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*5+2, l: Math.random()*15+5});
-        }
+    function init() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        for(let i=0; i<100; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*4+2, l: Math.random()*20+5});
     }
     function draw() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.strokeStyle = "#00f2ff55";
-        ctx.lineWidth = 2;
-        stars.forEach(s => {
-            ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
-            s.y += s.s; if(s.y > canvas.height) s.y = -20;
-        });
+        ctx.clearRect(0,0,canvas.width, canvas.height); ctx.strokeStyle = "#00f2ff44"; ctx.lineWidth = 2;
+        stars.forEach(s => { ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke(); s.y += s.s; if(s.y > canvas.height) s.y = -20; });
         requestAnimationFrame(draw);
     }
-    initStars(); draw();
-
-    // --- AUTH ---
-    function login() {
-        user = document.getElementById('username').value;
-        let pass = document.getElementById('password').value;
-        if(!user || !pass) return;
-
-        if(user === "neuro(owner)" && pass === "admin") {
-            isOwner = true;
-            document.body.classList.add('admin-mode');
-        }
-
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('main-ui').style.display = 'flex';
-        loadData();
-    }
-
-    // --- CHAT & TICKETS ---
-    function send() {
-        let text = document.getElementById('chatInput').value;
-        if(!text) return;
-        db.ref('messages').push().set({user, text, owner: isOwner});
-        document.getElementById('chatInput').value = "";
-    }
-
-    function loadData() {
-        db.ref('messages').limitToLast(10).on('child_added', (s) => {
-            let d = s.val();
-            let m = document.createElement('div');
-            m.className = `msg ${d.owner ? 'owner' : ''}`;
-            m.innerHTML = `<strong>${d.user}:</strong> ${d.text}`;
-            document.getElementById('chat-box').appendChild(m);
-        });
-    }
-
-    function fileTicket() {
-        let sub = document.getElementById('t-subject').value;
-        let body = document.getElementById('t-msg').value;
-        if(!sub || !body) return;
-        db.ref('tickets').push().set({user, sub, body});
-        alert("Ticket Filed!");
-    }
+    init(); draw();
 </script>
 </body>
 </html>
