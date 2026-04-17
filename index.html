@@ -3,205 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUROHUB | Elite</title>
+    <title>NEUROHUB | Product Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
         :root {
             --primary: #00f2ff;
             --secondary: #ff007f;
             --bg-dark: #050505;
-            --panel-bg: rgba(10, 10, 10, 0.9);
-            --border: rgba(0, 242, 255, 0.3);
+            --panel-bg: rgba(13, 17, 23, 0.95);
+            --border: rgba(0, 242, 255, 0.25);
         }
 
-        * { cursor: crosshair !important; box-sizing: border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* CUSTOM CROSSHAIR CURSOR */
+        * { 
+            cursor: crosshair !important; 
+            box-sizing: border-box; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
         body, html { margin: 0; padding: 0; background: var(--bg-dark); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* FALLING STARS BACKGROUND */
-        #star-canvas { position: fixed; inset: 0; z-index: -1; background: #000; }
+        canvas#stars { position: fixed; inset: 0; z-index: -1; background: #000; }
 
         /* BUTTON ANIMATIONS */
-        button, .nav-item, .action-btn { position: relative; overflow: hidden; }
-        button:hover, .action-btn:hover { transform: scale(1.03); filter: brightness(1.2); box-shadow: 0 0 15px var(--primary); }
-        button:active { transform: scale(0.95); }
+        .btn, .nav-item { position: relative; }
+        .btn:hover { 
+            transform: scale(1.05); 
+            background: var(--primary); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--primary); 
+        }
+        .btn:active { transform: scale(0.95); }
 
-        /* AUTH GATE WITH FALLING STARS */
+        /* AUTHENTICATION GATE */
         #auth-gate { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: #000; }
         .auth-box { 
             background: var(--panel-bg); 
             border: 2px solid var(--primary); 
             padding: 50px; 
             border-radius: 20px; 
-            width: 400px; 
+            width: 420px; 
             text-align: center; 
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.15);
         }
-        .auth-box h2 { font-family: 'Orbitron'; color: var(--primary); margin-bottom: 30px; letter-spacing: 3px; }
-        input { width: 100%; background: #111; border: 1px solid var(--border); padding: 14px; color: #fff; margin-bottom: 15px; border-radius: 8px; outline: none; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 242, 255, 0.3); }
+        .auth-box h2 { font-family: 'Orbitron'; color: var(--primary); margin-bottom: 30px; letter-spacing: 4px; }
+        input { 
+            width: 100%; background: #0a0a0a; border: 1px solid var(--border); 
+            padding: 15px; color: #fff; margin-bottom: 12px; border-radius: 8px; outline: none; 
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
 
-        /* PORTAL LAYOUT */
+        /* MAIN APP LAYOUT */
         .wrapper { display: none; height: 100vh; flex-direction: column; }
-        .top-nav { height: 65px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+        .top-nav { 
+            height: 65px; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: space-between; padding: 0 30px; 
+        }
         .main-body { display: flex; flex: 1; overflow: hidden; }
         
         /* SIDEBAR */
-        .sidebar { width: 250px; background: rgba(5,5,5,0.9); border-right: 1px solid var(--border); padding: 40px 20px; display: flex; flex-direction: column; gap: 15px; }
-        .nav-item { padding: 15px; border-radius: 10px; font-family: 'Orbitron'; font-size: 0.8rem; color: #666; display: flex; align-items: center; gap: 15px; text-transform: uppercase; }
-        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-item.active { color: var(--primary); background: rgba(0, 242, 255, 0.1); border-right: 4px solid var(--primary); }
+        .sidebar { 
+            width: 260px; background: rgba(5,5,5,0.95); border-right: 1px solid var(--border); 
+            padding: 30px 20px; display: flex; flex-direction: column; gap: 12px; 
+        }
+        .nav-item { 
+            padding: 14px; border-radius: 10px; font-family: 'Orbitron'; font-size: 0.8rem; 
+            color: #666; cursor: pointer; display: flex; align-items: center; gap: 15px; 
+        }
+        .nav-item:hover, .nav-item.active { color: var(--primary); background: rgba(0, 242, 255, 0.08); }
 
-        /* CONTENT */
-        .content { flex: 1; padding: 60px; overflow-y: auto; }
-        .tab-content { display: none; animation: slideUp 0.5s ease; }
+        /* CONTENT TABS */
+        .content { flex: 1; padding: 50px; overflow-y: auto; }
+        .tab-content { display: none; animation: slideIn 0.4s ease; }
         .tab-content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* OWNER PANEL GRID */
-        .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .feat-card { background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; text-align: center; font-size: 0.8rem; }
-        .feat-card:hover { border-color: var(--primary); background: #161616; }
+        /* CARDS & GRIDS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 20px; }
+        .card { 
+            background: #0d1117; border: 1px solid #222; padding: 25px; border-radius: 12px; 
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 0 25px rgba(0, 242, 255, 0.1); }
+        .card h3 { font-family: 'Orbitron'; color: var(--primary); margin-top: 0; }
+        .card p { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
 
-        .action-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 5px; font-family: 'Orbitron'; width: 100%; margin-top: 10px; }
+        .btn { 
+            background: transparent; border: 1px solid var(--primary); color: var(--primary); 
+            padding: 12px; border-radius: 6px; font-family: 'Orbitron'; width: 100%; 
+            font-size: 0.75rem; text-decoration: none; display: inline-block;
+        }
         
-        .welcome-text { font-family: 'Orbitron'; font-size: 4rem; text-align: center; margin-top: 15vh; color: var(--primary); text-shadow: 0 0 30px rgba(0, 242, 255, 0.5); }
+        .welcome-hero { 
+            font-family: 'Orbitron'; font-size: 3.5rem; text-align: center; margin-top: 18vh; 
+            color: var(--primary); text-shadow: 0 0 40px rgba(0, 242, 255, 0.4); 
+        }
     </style>
 </head>
 <body>
 
-<canvas id="star-canvas"></canvas>
+<canvas id="stars"></canvas>
 
 <div id="auth-gate">
-    <div class="auth-box" id="login-form">
+    <div class="auth-box" id="login-box">
         <h2>NEURO LOGIN</h2>
         <input type="text" id="l-user" placeholder="USERNAME">
         <input type="password" id="l-pass" placeholder="PASSWORD">
-        <button class="action-btn" onclick="handleLogin()">AUTHORIZE</button>
-        <p style="font-size: 0.7rem; color: #444; margin-top: 20px; cursor: pointer;" onclick="toggleAuth(true)">CREATE NEW IDENTITY</p>
+        <button class="btn" onclick="authenticate()">ACCESS PORTAL</button>
+        <p style="font-size:0.7rem; color:#444; margin-top:20px; cursor:pointer;" onclick="toggleAuth(true)">REQUEST NEW ACCOUNT</p>
     </div>
 
-    <div class="auth-box" id="signup-form" style="display:none;">
-        <h2>NEURO SIGN UP</h2>
-        <input type="text" id="s-user" placeholder="CHOOSE USERNAME">
-        <input type="password" id="s-pass" placeholder="CHOOSE PASSWORD">
-        <button class="action-btn" onclick="handleSignUp()">REGISTER</button>
-        <p style="font-size: 0.7rem; color: #444; margin-top: 20px; cursor: pointer;" onclick="toggleAuth(false)">RETURN TO LOGIN</p>
+    <div class="auth-box" id="signup-box" style="display:none;">
+        <h2>NEURO REGISTER</h2>
+        <input type="text" id="s-user" placeholder="NEW USERNAME">
+        <input type="password" id="s-pass" placeholder="NEW PASSWORD">
+        <button class="btn" onclick="authenticate()">CREATE IDENTITY</button>
+        <p style="font-size:0.7rem; color:#444; margin-top:20px; cursor:pointer;" onclick="toggleAuth(false)">RETURN TO LOGIN</p>
     </div>
 </div>
 
-<div class="wrapper" id="main-ui">
+<div class="wrapper" id="main-app">
     <nav class="top-nav">
-        <div style="font-family:'Orbitron'; color:var(--primary); letter-spacing:2px;">NEUROHUB // ELITE</div>
-        <div id="user-tag" style="font-size:0.8rem; color:#888;">AGENT: NULL</div>
+        <div style="font-family:'Orbitron'; color:var(--primary); letter-spacing:3px;">NEUROHUB PORTAL</div>
+        <div id="user-display" style="font-size:0.8rem; color:#888;">STATUS: AUTHORIZED</div>
     </nav>
 
     <div class="main-body">
         <aside class="sidebar">
-            <div class="nav-item active" onclick="showTab('dash', this)">📊 Dashboard</div>
-            <div class="nav-item" onclick="showTab('owner', this)">💀 Owner Panel</div>
-            <div class="nav-item" onclick="showTab('events', this)">📅 Events</div>
-            <div class="nav-item" onclick="showTab('settings', this)">⚙️ Settings</div>
+            <div class="nav-item active" onclick="switchTab('dash', this)">🏠 Dashboard</div>
+            <div class="nav-item" onclick="switchTab('store', this)">🛒 Product Store</div>
+            <div class="nav-item" onclick="switchTab('owner', this)">💎 Owner Panel</div>
+            <div class="nav-item" onclick="switchTab('events', this)">📅 Events</div>
             <div class="nav-item" style="margin-top:auto; color:var(--secondary)" onclick="location.reload()">🚪 Terminate</div>
         </aside>
 
         <main class="content">
             <div id="dash" class="tab-content active">
-                <h1 class="welcome-text">WELCOME TO NEUROCHEATS!</h1>
+                <h1 class="welcome-hero">WELCOME TO NEUROCHEATS!</h1>
+            </div>
+
+            <div id="store" class="tab-content">
+                <h2 style="font-family:'Orbitron'; border-bottom:1px solid var(--border); padding-bottom:15px;">PUBLIC PRODUCTS</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>V6 OPTIMIZER</h3>
+                        <p>PC Optimization utility for frame rate unlocking and system cleaning.</p>
+                        <a href="YOUR_DOWNLOAD_LINK_HERE" class="btn">DOWNLOAD .EXE</a>
+                    </div>
+                    <div class="card">
+                        <h3>KOUR.IO CHEAT</h3>
+                        <p>Custom script suite for Kour.io. Includes Silent Aimbot and ESP protocols.</p>
+                        <a href="YOUR_SCRIPT_LINK_HERE" class="btn">INSTALL SCRIPT</a>
+                    </div>
+                </div>
             </div>
 
             <div id="owner" class="tab-content">
-                <h2 style="font-family:'Orbitron'; border-bottom:1px solid var(--border); padding-bottom:10px;">SYSTEM OVERRIDE</h2>
-                <div class="feat-grid">
-                    <div class="feat-card">AIMBOT</div>
-                    <div class="feat-card">ESP</div>
-                    <div class="feat-card">CROSSHAIR</div>
-                    <div class="feat-card">TRIGGERBOT</div>
-                    <div class="feat-card">V6 OPTIMIZER</div>
-                    <div class="feat-card">DNS FLUSH</div>
-                    <div class="feat-card">GPU BOOST</div>
-                    <div class="feat-card">CLEANER</div>
+                <h2 style="font-family:'Orbitron'; color:var(--primary);">NEURO HUB ELITE (ADMIN)</h2>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="card" style="padding:15px;">DNS Flush</div>
+                    <div class="card" style="padding:15px;">GPU Boost</div>
+                    <div class="card" style="padding:15px;">CPU Priority</div>
+                    <div class="card" style="padding:15px;">Clear Cache</div>
+                    <div class="card" style="padding:15px;">Telemetry Block</div>
+                    <div class="card" style="padding:15px;">Registry Clean</div>
+                    <div class="card" style="padding:15px;">Log Wipe</div>
+                    <div class="card" style="padding:15px;">Temp Clear</div>
                 </div>
+                <button class="btn" style="margin-top:25px;">EXECUTE ALL 40+ OPTIMIZATIONS</button>
             </div>
 
             <div id="events" class="tab-content">
-                <h2 style="font-family:'Orbitron'; color:var(--primary);">UPCOMING RELEASES</h2>
-                <div style="margin-top:30px; border-left: 2px solid var(--primary); padding-left: 20px;">
-                    <p>🚀 <b>KRUNKER.IO</b> NEW CHEAT RELEASE - <span style="color:var(--primary)">4/19/26</span></p>
-                    <p>🔥 <b>CS2</b> CHEAT PROTOCOL RELEASE - <span style="color:var(--primary)">4/29/26</span></p>
+                <h2 style="font-family:'Orbitron';">GLOBAL EVENTS</h2>
+                <div style="margin-top:30px; border-left: 3px solid var(--primary); padding-left: 25px;">
+                    <p>🚀 <b>KRUNKER.IO</b> PRODUCT RELEASE - <span style="color:var(--primary)">4/19/26</span></p>
+                    <p>🔥 <b>CS2</b> PRODUCT RELEASE - <span style="color:var(--primary)">4/29/26</span></p>
                 </div>
-            </div>
-
-            <div id="settings" class="tab-content">
-                <h2 style="font-family:'Orbitron';">USER PREFERENCES</h2>
-                <p>Discord Integration: <span style="color:var(--primary)">CONNECTED</span></p>
-                <p>Auto-Inject: [ON]</p>
-                <p>Theme: NEON DARK</p>
             </div>
         </main>
     </div>
 </div>
 
 <script>
-    // STAR ANIMATION
-    const canvas = document.getElementById('star-canvas');
+    // FALLING STARS ANIMATION
+    const canvas = document.getElementById('stars');
     const ctx = canvas.getContext('2d');
     let stars = [];
 
-    function initStars() {
+    function setup() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         stars = [];
-        for(let i=0; i<100; i++) {
+        for(let i=0; i<120; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                s: Math.random() * 3 + 1,
-                speed: Math.random() * 5 + 2
+                size: Math.random() * 2 + 1,
+                velocity: Math.random() * 4 + 2
             });
         }
     }
 
-    function animate() {
+    function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#fff";
         stars.forEach(s => {
             ctx.beginPath();
-            ctx.arc(s.x, s.y, s.s/2, 0, Math.PI*2);
+            ctx.arc(s.x, s.y, s.size/2, 0, Math.PI * 2);
             ctx.fill();
-            s.y += s.speed;
+            s.y += s.velocity;
             if(s.y > canvas.height) { s.y = -10; s.x = Math.random() * canvas.width; }
         });
-        requestAnimationFrame(animate);
+        requestAnimationFrame(draw);
     }
 
-    // AUTH LOGIC
-    function toggleAuth(showSignup) {
-        document.getElementById('login-form').style.display = showSignup ? 'none' : 'block';
-        document.getElementById('signup-form').style.display = showSignup ? 'block' : 'none';
+    // UI LOGIC
+    function toggleAuth(signup) {
+        document.getElementById('login-box').style.display = signup ? 'none' : 'block';
+        document.getElementById('signup-box').style.display = signup ? 'block' : 'none';
     }
 
-    function handleLogin() {
-        const u = document.getElementById('l-user').value;
-        if(u) {
-            document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('main-ui').style.display = 'flex';
-            document.getElementById('user-tag').innerText = "AGENT: " + u.toUpperCase();
-        }
+    function authenticate() {
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
     }
 
-    function showTab(id, el) {
+    function switchTab(id, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
     }
 
-    window.addEventListener('resize', initStars);
-    initStars(); animate();
+    window.onresize = setup;
+    setup(); draw();
 </script>
 </body>
 </html>
