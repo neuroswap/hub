@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEUROHUB | Master Portal</title>
+    
+    <link rel="icon" href="https://img.icons8.com/ios-filled/50/00f2ff/skull.png" type="image/png">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
@@ -14,7 +17,7 @@
         body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
         #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 
-        /* AUTH */
+        /* AUTH BOX */
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: #080808; border: 2px solid var(--primary); padding: 40px; border-radius: 25px; width: 400px; text-align: center; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
         input, textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 14px; color: white; border-radius: 12px; margin-bottom: 12px; outline: none; font-family: 'Inter'; }
@@ -23,27 +26,23 @@
         #tos-gate { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .tos-box { background: #080808; border: 1px solid var(--border); padding: 30px; border-radius: 20px; width: 450px; text-align: center; }
 
-        /* UI LAYOUT */
+        /* DASHBOARD LAYOUT */
         #main-ui { display: none; height: 100vh; grid-template-columns: 280px 1fr; }
         .sidebar { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--border); padding: 40px 20px; display: flex; flex-direction: column; gap: 10px; position: relative; }
         .nav-tab { padding: 16px; border-radius: 15px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; color: #666; display: flex; align-items: center; gap: 12px; }
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.08); border: 1px solid var(--primary); }
 
-        /* CONTENT */
         .content-area { padding: 50px; overflow-y: auto; }
         .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 25px; }
         
-        /* BUTTONS */
         .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 12px 25px; border-radius: 50px; border: none; cursor: pointer; font-size: 0.8rem; text-decoration: none; display: inline-block; text-align: center; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary); }
         .btn-admin { background: var(--secondary); color: white; width: 100%; margin-top: 5px; font-size: 0.7rem; border-radius: 10px; }
 
-        /* CHAT */
         .chat-box { height: 300px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 10px; font-size: 0.85rem; }
-        
         #logout-btn { position: absolute; bottom: 20px; left: 20px; font-size: 0.6rem; color: var(--secondary); background: none; border: 1px solid var(--secondary); padding: 5px 10px; cursor: pointer; font-family: 'Orbitron'; border-radius: 5px; }
     </style>
 </head>
@@ -63,8 +62,8 @@
 
 <div id="tos-gate">
     <div class="tos-box">
-        <h2 style="font-family:'Orbitron'; color:var(--primary);">TERMS</h2>
-        <p style="font-size:0.8rem; color:#888;">No reverse engineering. No chat abuse. Bans are permanent IP/Device locks.</p>
+        <h2 style="font-family:'Orbitron'; color:var(--primary);">TERMS OF SERVICE</h2>
+        <p style="font-size:0.8rem; color:#888;">No reverse engineering. No chat abuse. Bans are permanent hardware and account locks. By entering, you agree to the NeuroHub protocol.</p>
         <button class="btn" style="width:100%" onclick="finishLogin()">ACCEPT & ENTER</button>
     </div>
 </div>
@@ -84,14 +83,14 @@
             <h1 style="font-family:'Orbitron';">MODULES</h1>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                 <div class="panel">
-                    <h3>V6 OPTIMIZER</h3>
-                    <p style="font-size:0.8rem; color:#888;">Elite PC Utility. Cleans cache and reduces latency.</p>
-                    <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494771426979221694/NeuroHub_V6_Elite.exe?ex=69e3d1df&is=69e2805f&hm=30b33810ca8741e2100c22616c82dec4008a9d07821cc1f0b088c9bc461058eb&" class="btn">DOWNLOAD</a>
+                    <h3 style="color: var(--primary);">V6 OPTIMIZER (ELITE)</h3>
+                    <p style="font-size:0.85rem; color:#ccc; line-height: 1.5;">The definitive system optimization utility. This module executes deep-level cache clearing and registry tuning to minimize input delay and stabilize frame rates in high-stakes environments.</p>
+                    <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494771426979221694/NeuroHub_V6_Elite.exe?ex=69e3d1df&is=69e2805f&hm=30b33810ca8741e2100c22616c82dec4008a9d07821cc1f0b088c9bc461058eb&" class="btn">DOWNLOAD EXE</a>
                 </div>
                 <div class="panel">
-                    <h3>kour.io cheat</h3>
-                    <p style="font-size:0.8rem; color:#888;">aimbot esp crosshair</p>
-                    <a href="https://raw.githubusercontent.com/neuroswap/ddos/main/kour-internal.user.js" class="btn" style="background:var(--secondary); color:white;">INSTALL</a>
+                    <h3 style="color: var(--secondary);">KOUR.IO CHEAT</h3>
+                    <p style="font-size:0.85rem; color:#ccc; line-height: 1.5;">A comprehensive internal suite for Kour.io. Includes silent aimbot, high-definition ESP, and customizable crosshairs for precision dominance in browser-based combat.</p>
+                    <a href="https://raw.githubusercontent.com/neuroswap/ddos/main/kour-internal.user.js" class="btn" style="background:var(--secondary); color:white;">INSTALL SCRIPT</a>
                 </div>
             </div>
         </div>
@@ -106,32 +105,33 @@
         </div>
 
         <div id="support" class="tab-content">
-            <h2>SUPPORT</h2>
+            <h2>SUPPORT TICKETS</h2>
             <div class="panel">
                 <input type="text" id="t-subject" placeholder="Subject">
-                <textarea id="t-body" placeholder="Describe issue..."></textarea>
+                <textarea id="t-body" placeholder="Describe the issue..."></textarea>
                 <button class="btn" onclick="fileTicket()">OPEN TICKET</button>
             </div>
             <div id="user-tickets"></div>
             <div id="ticket-chat-area" style="display:none;" class="panel">
-                <h4 id="active-ticket-id">Ticket Chat</h4>
+                <h4 id="active-ticket-id">Ticket Dialogue</h4>
                 <div id="t-chat-display" class="chat-box"></div>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="t-chat-input" placeholder="Reply..." style="margin:0;">
+                    <input type="text" id="t-chat-input" placeholder="Type a response..." style="margin:0;">
                     <button class="btn" onclick="sendTicketMsg()">REPLY</button>
                 </div>
             </div>
         </div>
 
         <div id="admin" class="tab-content">
-            <h2>OWNER COMMANDS</h2>
+            <h2 style="color: var(--secondary);">OWNER COMMAND CENTER</h2>
             <div class="panel">
                 <h3>BAN SYSTEM</h3>
-                <input type="text" id="ban-target" placeholder="Username to Ban">
-                <button class="btn btn-admin" onclick="banUser()">BAN USER & IP</button>
+                <p style="font-size: 0.7rem; color: #666; margin-bottom: 10px;"> ब्लैकलिस्ट execution: Blacklist a user's account and device fingerprint from the hub permanently.</p>
+                <input type="text" id="ban-target" placeholder="Target Username">
+                <button class="btn btn-admin" onclick="banUser()">EXECUTE BAN</button>
             </div>
             <div class="panel">
-                <h3>ALL TICKETS</h3>
+                <h3>MANAGE TICKETS</h3>
                 <div id="admin-all-tickets"></div>
             </div>
         </div>
@@ -274,14 +274,13 @@
             if(s.exists()) {
                 db.ref('bans/users/' + target).set(true);
                 if(s.val().fp) db.ref('bans/ips/' + s.val().fp).set(true);
-                alert("Banned " + target);
-            }
+                alert("Blacklisted " + target);
+            } else { alert("User not found."); }
         });
     }
 
     function deleteTicket(id) { db.ref('tickets/' + id).remove(); db.ref('ticket_msgs/' + id).remove(); }
 
-    // Background Stars
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
