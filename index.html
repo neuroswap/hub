@@ -3,551 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUROHUB | Master Portal</title>
+    <title>NEUROHUB | Portal</title>
     <link rel="icon" href="https://img.icons8.com/ios-filled/50/00f2ff/skull.png" type="image/png">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
         :root {
-            --primary-bg: #010101;
-            --sidebar-bg: rgba(5, 5, 5, 0.9);
-            --panel-bg: rgba(20, 20, 20, 0.8);
-            --border-color: rgba(50, 50, 50, 0.7);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            
-            --neon-cyan: #00f2ff;
-            --neon-pink: #ff007f;
-            --text-main: #fff;
-            --text-muted: #888;
-            --text-card: #ccc;
+            --primary: #00f2ff;
+            --secondary: #ff007f;
+            --bg-dark: #0a0c10;
+            --panel-bg: rgba(13, 17, 23, 0.8);
+            --sidebar-width: 240px;
+            --topbar-height: 60px;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        * { box-sizing: border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        body, html { margin: 0; padding: 0; background: var(--primary-bg); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
-        
-        #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
+        body, html { 
+            margin: 0; padding: 0; 
+            background: var(--bg-dark); 
+            color: #fff; 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        /* --- Global Broadcast Banner --- */
-        #global-alert {
-            display: none;
+        /* PURPLE STARFIELD BACKGROUND */
+        #star-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: var(--neon-pink);
-            color: white;
-            padding: 12px;
-            text-align: center;
-            font-family: 'Orbitron';
-            font-size: 0.85rem;
-            z-index: 20000;
-            box-shadow: 0 5px 25px rgba(255, 0, 127, 0.5);
-            border-bottom: 3px solid white;
-            letter-spacing: 1px;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #0a0c10 100%);
         }
 
-        /* --- Authentification Gate --- */
-        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .auth-box {
-            background: #080808;
-            border: 2px solid var(--neon-cyan);
-            padding: 50px;
-            border-radius: 25px;
-            width: 420px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
-        }
-        .auth-title { font-family: 'Orbitron'; color: var(--neon-cyan); margin-bottom: 30px; font-size: 1.8rem; letter-spacing: 2px; }
-        input, textarea {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            color: white;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            outline: none;
-            font-family: 'Inter';
-            font-size: 0.9rem;
-        }
-        input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
-        .auth-toggle { color: var(--neon-cyan); cursor: pointer; font-size: 0.75rem; margin-top: 20px; opacity: 0.7; }
-        .auth-toggle:hover { opacity: 1; }
-
-        /* --- TOS Gate --- */
-        #tos-gate { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .tos-box { background: #080808; border: 1px solid var(--border-color); padding: 40px; border-radius: 20px; width: 480px; text-align: center; }
-        .tos-box p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; }
-
-        /* --- Main UI Layout --- */
-        #main-ui { display: none; height: 100vh; grid-template-columns: 300px 1fr; }
-        
-        /* Sidebar (Matched to image) */
-        .sidebar {
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(30px);
-            border-right: 1px solid var(--border-color);
-            padding: 60px 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-        }
-        .sidebar-logo {
-            font-family: 'Orbitron';
-            color: var(--neon-cyan);
-            text-align: center;
-            font-size: 1.5rem;
-            letter-spacing: 3px;
-            margin-bottom: 80px;
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-        }
-        .nav-tab {
-            padding: 18px 25px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-family: 'Orbitron';
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
+        /* TOP GLOBAL ALERT */
+        #global-alert {
+            height: 35px;
+            background: rgba(0, 242, 255, 0.15);
+            border-bottom: 1px solid var(--primary);
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-        .nav-tab:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
-        .nav-tab.active {
-            color: var(--neon-cyan);
-            background: rgba(0, 242, 255, 0.08);
-            border: 1px solid rgba(0, 242, 255, 0.3);
-            font-weight: 700;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+            z-index: 1001;
         }
 
-        /* --- Content Area --- */
-        .content-area { padding: 80px 60px; overflow-y: auto; }
-        .content-header { font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 3px; margin-bottom: 60px; }
+        /* MAIN CONTAINER */
+        .wrapper { display: flex; flex-direction: column; height: 100vh; }
         
-        .tab-content { display: none; animation: fadeIn 0.5s ease forwards; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Products Section (Tabbed Grid) --- */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 30px; }
-        
-        /* Product Panel (Matched to image) */
-        .panel {
-            background: var(--panel-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 28px;
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        /* TOP NAVIGATION BAR */
+        .top-nav {
+            height: var(--topbar-height);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
         }
-        .panel:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-5px); }
-        .panel h3 { font-family: 'Orbitron'; font-size: 1.3rem; letter-spacing: 1px; margin: 0 0 15px 0; }
-        .panel p { font-size: 0.9rem; color: var(--text-card); line-height: 1.7; margin: 0; }
-        
-        /* Skull Icon */
-        .panel-skull { position: absolute; top: 25px; left: 25px; opacity: 0.1; max-width: 30px; }
 
-        /* Sub-Tabs (Restored Logic) */
-        .product-tab-container { margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .product-tab-nav { display: flex; gap: 20px; }
-        .product-sub-tab {
+        .logo-section { display: flex; align-items: center; gap: 12px; }
+        .logo-section h2 { font-family: 'Orbitron'; font-size: 1.1rem; margin: 0; letter-spacing: 2px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: #aaa; }
+
+        /* CONTENT LAYOUT */
+        .main-body { display: flex; flex: 1; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 1px solid var(--border);
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            padding: 12px 18px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 0.8rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .nav-item:hover { background: var(--glass); color: #fff; }
+        .nav-item.active { background: rgba(0, 242, 255, 0.1); color: var(--primary); }
+
+        /* PRODUCT AREA */
+        .content-container {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .welcome-header {
+            text-align: center;
+            font-family: 'Orbitron';
+            margin-bottom: 50px;
+        }
+        .welcome-header h1 { font-size: 1.8rem; letter-spacing: 4px; margin: 0; }
+        .welcome-header p { font-size: 0.8rem; color: #666; margin-top: 10px; }
+
+        /* PRODUCT CARDS GRID */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.05);
+        }
+
+        .card-header-icon {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 250px;
+            background: #111;
+            overflow: hidden;
+        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+
+        .card-body { padding: 30px; text-align: center; flex: 1; }
+        .card-body h3 { font-family: 'Orbitron'; font-size: 1.2rem; color: var(--primary); margin: 0 0 15px 0; }
+        .card-body p { font-size: 0.85rem; color: #888; line-height: 1.6; margin-bottom: 25px; }
+
+        .action-btn {
+            border: 1px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
             font-family: 'Orbitron';
             font-size: 0.8rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            padding: 8px 20px;
-            border-radius: 8px;
-        }
-        .product-sub-tab:hover { color: var(--text-main); }
-        .product-sub-tab.active {
-            color: var(--neon-cyan);
-            background: rgba(0, 242, 255, 0.1);
-        }
-
-        /* --- Buttons --- */
-        .btn {
-            background: var(--neon-cyan);
-            color: #000;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            padding: 16px 35px;
-            border-radius: 50px;
-            border: none;
             cursor: pointer;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
             text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            width: 100%;
-            margin-top: 30px;
-            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+            display: block;
         }
-        .btn:hover { transform: scale(1.03); box-shadow: 0 15px 35px rgba(0, 242, 255, 0.5); }
-        
-        .btn-cheat { background: var(--neon-pink); color: white; box-shadow: 0 10px 25px rgba(255, 0, 127, 0.3); }
-        .btn-cheat:hover { box-shadow: 0 15px 35px rgba(255, 0, 127, 0.5); }
+        .action-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
 
-        .btn-admin { background: var(--neon-pink); color: white; width: 100%; margin-top: 10px; font-size: 0.75rem; border-radius: 12px; padding: 10px; }
-
-        /* --- Owner Panel Elements --- */
-        #user-list-container { max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 15px; padding: 15px; font-size: 0.8rem; border: 1px solid var(--border-color); }
-        .user-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
-        .chat-box { height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color); margin-bottom: 15px; font-size: 0.9rem; }
-        
-        #logout-btn {
-            position: absolute;
-            bottom: 30px;
-            left: 25px;
-            font-size: 0.7rem;
-            color: var(--neon-pink);
-            background: none;
-            border: 1.5px solid var(--neon-pink);
-            padding: 8px 15px;
-            cursor: pointer;
-            font-family: 'Orbitron';
-            border-radius: 8px;
-            letter-spacing: 1px;
-        }
-        #logout-btn:hover { background: rgba(255, 0, 127, 0.1); }
+        /* AUTH BOX (Restored for login) */
+        #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: #080808; border: 1px solid var(--primary); padding: 40px; border-radius: 12px; width: 350px; text-align: center; }
+        input { width: 100%; background: #111; border: 1px solid var(--border); padding: 12px; color: #fff; margin-bottom: 10px; border-radius: 4px; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="global-alert"></div>
-    <canvas id="starfield"></canvas>
+<canvas id="star-canvas"></canvas>
 
-    <div id="auth-gate">
-        <div class="auth-box">
-            <h1 class="auth-title">NEURO LOGIN</h1>
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn" style="width:100%" onclick="handleAuth()">AUTHORIZE</button>
-            <p id="toggle-text" class="auth-toggle" onclick="toggleAuthMode()">Need an account? Sign Up</p>
-        </div>
+<div id="auth-gate">
+    <div class="auth-box">
+        <h2 style="font-family:'Orbitron'; color:var(--primary);">NEURO LOGIN</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button class="action-btn" onclick="handleAuth()">AUTHORIZE</button>
     </div>
+</div>
 
-    <div id="tos-gate">
-        <div class="tos-box">
-            <h1 style="font-family:'Orbitron'; color:var(--neon-cyan); letter-spacing:2px; margin-bottom:20px;">TERMS OF SERVICE</h1>
-            <p>Reverse engineering, chat abuse, or protocol exploitation are strictly forbidden. Infractions result in permanent hardware and account blacklisting. By proceeding, you agree to the NeuroHub operation parameters.</p>
-            <button class="btn" style="width:100%" onclick="finishLogin()">ACCEPT & ENTER</button>
+<div class="wrapper">
+    <div id="global-alert">⚠️ GLOBAL ALERT: Logged in. System ready for auto-injection.</div>
+    
+    <nav class="top-nav">
+        <div class="logo-section">
+            <img src="https://img.icons8.com/ios-filled/50/00f2ff/brain.png" width="24">
+            <h2>NEUROHUB</h2>
         </div>
+        <div class="user-profile">
+            <span id="user-display">Guest</span>
+            <img src="https://img.icons8.com/ios-glyphs/30/888888/user.png" width="20">
+        </div>
+    </nav>
+
+    <div class="main-body">
+        <aside class="sidebar">
+            <div class="nav-item">📊 Dashboard</div>
+            <div class="nav-item active">📦 Products</div>
+            <div class="nav-item">📅 Events</div>
+            <div class="nav-item">⚙️ Settings</div>
+            <div class="nav-item" style="margin-top:auto" onclick="logout()">🚪 Logout</div>
+        </aside>
+
+        <main class="content-container">
+            <div class="welcome-header">
+                <p>WELCOME TO</p>
+                <h1>NEUROHUB PORTAL</h1>
+            </div>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header-icon"><img src="https://img.icons8.com/ios-filled/50/00f2ff/skull.png" width="20"></div>
+                    <div class="card-img">
+                        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000">
+                    </div>
+                    <div class="card-body">
+                        <h3>V6 OPTIMIZER (ELITE)</h3>
+                        <p>V6 Optimizer (ELITE) is a suite for optimized PC data based PC optimizing system and unlocking frame rates for high performance gaming.</p>
+                        <a href="#" class="action-btn">DOWNLOAD EXE</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-icon"><img src="https://img.icons8.com/ios-filled/50/00f2ff/skull.png" width="20"></div>
+                    <div class="card-img">
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000">
+                    </div>
+                    <div class="card-body">
+                        <h3>KOUR.IO CHEAT</h3>
+                        <p>Kour.io Cheat is a collate of your cheats: Aimbot, ESP, and Radar with scripts targeted for enhancement and dominance.</p>
+                        <a href="#" class="action-btn">INSTALL SCRIPT</a>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
+</div>
 
-    <div id="main-ui">
-        <div class="sidebar">
-            <h1 class="sidebar-logo">NEUROHUB</h1>
-            <div class="nav-tab active" onclick="showTab('products', this)">PRODUCTS</div>
-            <div class="nav-tab" onclick="showTab('chat', this)">COMMUNITY</div>
-            <div class="nav-tab" onclick="showTab('support', this)">SUPPORT</div>
-            <div id="admin-tab" class="nav-tab" style="display:none; color:var(--neon-pink);" onclick="showTab('admin', this)">OWNER PANEL</div>
-            <button id="logout-btn" onclick="logout()">LOGOUT</button>
-        </div>
+<script>
+    // Star Background Logic
+    const canvas = document.getElementById('star-canvas');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
 
-        <div class="content-area">
-            
-            <div id="products" class="tab-content active">
-                <h1 class="content-header">MODULES</h1>
-                
-                <div class="product-tab-container">
-                    <div class="product-tab-nav">
-                        <div class="product-sub-tab active" id="st-optimizers" onclick="switchProductCategory('optimizers')">OPTIMIZERS</div>
-                        <div class="product-sub-tab" id="st-cheats" onclick="switchProductCategory('cheats')">CHEATS</div>
-                    </div>
-                </div>
-
-                <div id="cat-optimizers" class="cat-group product-grid">
-                    <div class="panel">
-                        <img src="https://img.icons8.com/ios-filled/50/00f2ff/skull.png" class="panel-skull" alt="Skull">
-                        <h3 style="color: var(--neon-cyan);">V6 OPTIMIZER (ELITE)</h3>
-                        <p>The definitive system optimization utility. This module executes deep-level cache clearing and registry tuning to minimize input delay and stabilize frame rates.</p>
-                        <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494771426979221694/NeuroHub_V6_Elite.exe?ex=69e3d1df&is=69e2805f&hm=30b33810ca8741e2100c22616c82dec4008a9d07821cc1f0b088c9bc461058eb&" class="btn">DOWNLOAD EXE</a>
-                    </div>
-                </div>
-
-                <div id="cat-cheats" class="cat-group product-grid" style="display:none;">
-                    <div class="panel">
-                        <img src="https://img.icons8.com/ios-filled/50/ff007f/skull.png" class="panel-skull" alt="Skull">
-                        <h3 style="color: var(--neon-pink);">KOUR.IO CHEAT</h3>
-                        <p>A comprehensive internal suite for Kour.io. Includes silent aimbot, high-definition ESP, and customizable crosshairs for protocol dominance.</p>
-                        <a href="https://raw.githubusercontent.com/neuroswap/ddos/main/kour-internal.user.js" class="btn btn-cheat">INSTALL SCRIPT</a>
-                    </div>
-                </div>
-            </div>
-
-            <div id="chat" class="tab-content">
-                <h1 class="content-header">GLOBAL CHAT</h1>
-                <div id="chat-display" class="chat-box"></div>
-                <div style="display:flex; gap:15px;">
-                    <input type="text" id="chatInput" placeholder="Enter message..." style="margin:0;">
-                    <button class="btn" style="width: auto; margin:0;" onclick="sendMsg()">SEND</button>
-                </div>
-            </div>
-
-            <div id="support" class="tab-content">
-                <h1 class="content-header">SUPPORT PROTOCOL</h1>
-                <div class="panel">
-                    <input type="text" id="t-subject" placeholder="Subject">
-                    <textarea id="t-body" placeholder="Describe the operational issue..."></textarea>
-                    <button class="btn" onclick="fileTicket()">OPEN TICKET</button>
-                </div>
-                <div id="user-tickets" style="margin-top:30px;"></div>
-                <div id="ticket-chat-area" style="display:none; margin-top:30px;" class="panel">
-                    <h4 id="active-ticket-id">Ticket Dialogue</h4>
-                    <div id="t-chat-display" class="chat-box"></div>
-                    <div style="display:flex; gap:15px;">
-                        <input type="text" id="t-chat-input" placeholder="Type a response..." style="margin:0;">
-                        <button class="btn" style="width:auto; margin:0;" onclick="sendTicketMsg()">REPLY</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="admin" class="tab-content">
-                <h1 class="content-header" style="color: var(--neon-pink);">COMMAND CENTER</h1>
-                <div class="panel">
-                    <h3>GLOBAL BROADCAST</h3>
-                    <input type="text" id="alert-msg" placeholder="Enter custom alert message...">
-                    <div style="display:flex; gap:15px;">
-                        <button class="btn btn-admin" onclick="updateGlobalAlert()">SET ALERT</button>
-                        <button class="btn" style="background:#222; color:white; border-radius:12px; width:100%; margin-top:10px; font-size:0.75rem;" onclick="clearGlobalAlert()">CLEAR</button>
-                    </div>
-                </div>
-                <div class="panel">
-                    <h3>REGISTERED AGENTS</h3>
-                    <div id="user-list-container"></div>
-                </div>
-                <div class="panel">
-                    <h3>BLACKLIST PROTOCOL</h3>
-                    <input type="text" id="ban-target" placeholder="Target Username">
-                    <button class="btn btn-admin" onclick="banUser()">EXECUTE BAN</button>
-                </div>
-                <div class="panel">
-                    <h3>MANAGE TICKETS</h3>
-                    <div id="admin-all-tickets"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // FIREBASE INITIALIZATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-tWfooosC689hzDUC4S5CXL7dJ3yANuc",
-            authDomain: "neuro-chat-8fe18.firebaseapp.com",
-            databaseURL: "https://neuro-chat-8fe18-default-rtdb.firebaseio.com",
-            projectId: "neuro-chat-8fe18",
-            storageBucket: "neuro-chat-8fe18.firebasestorage.app",
-            messagingSenderId: "490069277437",
-            appId: "1:490069277437:web:c17aaa860bf4ecfd7b1c94"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // GLOBAL Hub State
-        let currentUser = localStorage.getItem('neuroUser') || "";
-        let isOwner = localStorage.getItem('neuroIsOwner') === 'true';
-        let isSignUpMode = false;
-        let currentTicketId = "";
-        const fingerprint = btoa(navigator.userAgent).substring(0, 16);
-
-        // AUTO-LOGIN ON STARTUP
-        window.onload = () => { 
-            listenForAlert();
-            if(currentUser) { 
-                checkBanAndLogin(); 
-            } 
-        };
-
-        // --- Alert System ---
-        function listenForAlert() {
-            db.ref('site_settings/global_alert').on('value', snap => {
-                const banner = document.getElementById('global-alert');
-                if(snap.val()) {
-                    banner.innerText = snap.val();
-                    banner.style.display = 'block';
-                } else { banner.style.display = 'none'; }
+    function init() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = [];
+        for(let i=0; i<150; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 0.5 + 0.2,
+                color: Math.random() > 0.8 ? '#ff007f' : '#00f2ff'
             });
         }
-        function updateGlobalAlert() {
-            const msg = document.getElementById('alert-msg').value;
-            if(msg) db.ref('site_settings/global_alert').set(msg);
-        }
-        function clearGlobalAlert() { db.ref('site_settings/global_alert').remove(); }
+    }
 
-        // --- Authentification Flow ---
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            document.getElementById('auth-title').innerText = isSignUpMode ? "NEURO SIGN UP" : "NEURO LOGIN";
-            document.getElementById('toggle-text').innerText = isSignUpMode ? "Already have an account? Login" : "Need an account? Sign Up";
-        }
-        async function handleAuth() {
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
-            if(!u || !p) return;
-            const deviceBan = await db.ref('bans/ips/' + fingerprint).once('value');
-            if(deviceBan.exists()) { alert("PROTOCOL ERROR: Device Blacklisted."); return; }
-            
-            if(u === "neuro(owner)" && p === "admin") { loginSuccess(u, true); return; }
-            
-            const userRef = db.ref('users/' + u);
-            const snap = await userRef.once('value');
-            if(isSignUpMode) {
-                if(snap.exists()) alert("Username taken!");
-                else { await userRef.set({ pass: p, fp: fingerprint }); loginSuccess(u, false); }
-            } else {
-                if(snap.exists() && snap.val().pass === p) loginSuccess(u, false);
-                else alert("Access Denied: Invalid Credentials.");
-            }
-        }
-        function loginSuccess(u, owner) {
-            currentUser = u; isOwner = owner;
-            localStorage.setItem('neuroUser', u);
-            localStorage.setItem('neuroIsOwner', owner);
+    function animate() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        stars.forEach(s => {
+            ctx.fillStyle = s.color;
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+            ctx.fill();
+            s.y += s.speed;
+            if(s.y > canvas.height) s.y = 0;
+        });
+        requestAnimationFrame(animate);
+    }
+
+    // Auth Logic
+    function handleAuth() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if(u === "neuro(owner)" && p === "admin") {
             document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('tos-gate').style.display = 'flex';
+            document.getElementById('user-display').innerText = u;
+        } else {
+            alert("ACCESS DENIED");
         }
-        function finishLogin() {
-            document.getElementById('tos-gate').style.display = 'none';
-            document.getElementById('main-ui').style.display = 'grid';
-            if(currentUser === "neuro(owner)") {
-                document.getElementById('admin-tab').style.display = 'flex';
-                loadUserList();
-            } else {
-                document.getElementById('admin-tab').style.display = 'none';
-            }
-            initHub();
-        }
-        async function checkBanAndLogin() {
-            const ban = await db.ref('bans/users/' + currentUser).once('value');
-            const ipBan = await db.ref('bans/ips/' + fingerprint).once('value');
-            if(ban.exists() || ipBan.exists()) { logout(); }
-            else {
-                // If logged in via localstorage, skip auth box and go straight to TOS
-                document.getElementById('auth-gate').style.display = 'none';
-                document.getElementById('tos-gate').style.display = 'flex';
-            }
-        }
-        function logout() { localStorage.clear(); location.reload(); }
+    }
 
-        // --- Hub Functionality ---
-        function showTab(id, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
+    function logout() { location.reload(); }
 
-        // Sub-Tabs for Products
-        function switchProductCategory(cat) {
-            document.querySelectorAll('.cat-group').forEach(g => g.style.display = 'none');
-            document.querySelectorAll('.product-sub-tab').forEach(t => t.classList.remove('active'));
-            if(cat === 'optimizers') {
-                document.getElementById('cat-optimizers').style.display = 'grid';
-                document.getElementById('st-optimizers').classList.add('active');
-            } else {
-                document.getElementById('cat-cheats').style.display = 'grid';
-                document.getElementById('st-cheats').classList.add('active');
-            }
-        }
-
-        function initHub() {
-            db.ref('messages').limitToLast(30).on('child_added', s => {
-                const d = s.val();
-                const box = document.getElementById('chat-display');
-                box.innerHTML += `<div><b style="color:var(--neon-cyan)">${d.user}:</b> ${d.text}</div>`;
-                box.scrollTop = box.scrollHeight;
-            });
-            db.ref('tickets').on('value', s => {
-                const uDiv = document.getElementById('user-tickets');
-                const aDiv = document.getElementById('admin-all-tickets');
-                uDiv.innerHTML = ""; aDiv.innerHTML = "";
-                s.forEach(c => {
-                    const t = c.val(), k = c.key;
-                    const html = `<div style="padding:15px; border-bottom:1px solid #222; font-size:0.9rem;"><b>${t.sub}</b> <button class="btn" style="padding:4px 12px; margin:0 0 0 10px; width:auto; font-size:0.75rem;" onclick="openTicketChat('${k}')">JOIN</button> ${isOwner ? `<button class="btn" style="background:red; padding:4px 12px; margin:0 0 0 5px; width:auto; font-size:0.75rem;" onclick="deleteTicket('${k}')">DEL</button>` : ''}</div>`;
-                    if(isOwner) aDiv.innerHTML += html;
-                    if(t.user === currentUser) uDiv.innerHTML += html;
-                });
-            });
-        }
-
-        function openTicketChat(id) {
-            currentTicketId = id;
-            document.getElementById('ticket-chat-area').style.display = 'block';
-            db.ref('ticket_msgs/' + id).on('value', s => {
-                const box = document.getElementById('t-chat-display');
-                box.innerHTML = "";
-                s.forEach(m => { box.innerHTML += `<div><b>${m.val().user}:</b> ${m.val().text}</div>`; });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-        function sendTicketMsg() {
-            const val = document.getElementById('t-chat-input').value;
-            if(val) db.ref('ticket_msgs/' + currentTicketId).push({ user: currentUser, text: val });
-            document.getElementById('t-chat-input').value = "";
-        }
-        function sendMsg() { 
-            const t = document.getElementById('chatInput').value;
-            if(t) db.ref('messages').push({user: currentUser, text: t});
-            document.getElementById('chatInput').value = "";
-        }
-        function fileTicket() {
-            const s = document.getElementById('t-subject').value, b = document.getElementById('t-body').value;
-            if(s && b) db.ref('tickets').push({user: currentUser, sub: s, body: b});
-            document.getElementById('t-subject').value = ""; document.getElementById('t-body').value = "";
-        }
-
-        // --- Admin Controls ---
-        function loadUserList() {
-            db.ref('users').on('value', snap => {
-                const container = document.getElementById('user-list-container');
-                container.innerHTML = "";
-                snap.forEach(user => {
-                    container.innerHTML += `<div class="user-item"><span>${user.key}</span><span style="color:#444">${user.val().fp || 'No FP'}</span></div>`;
-                });
-            });
-        }
-        function banUser() {
-            const target = document.getElementById('ban-target').value;
-            if(!target) return;
-            db.ref('users/' + target).once('value', s => {
-                if(s.exists()) {
-                    db.ref('bans/users/' + target).set(true);
-                    if(s.val().fp) db.ref('bans/ips/' + s.val().fp).set(true);
-                    alert("PROTOCOL EXECUTED: " + target + " blacklisted.");
-                } else { alert("Operational Error: Target not found."); }
-            });
-        }
-        function deleteTicket(id) { db.ref('tickets/' + id).remove(); db.ref('ticket_msgs/' + id).remove(); }
-
-        // --- Background Stars ---
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
-        function initStars() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            stars = [];
-            for(let i=0; i<120; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*4+2, l:Math.random()*15+5});
-        }
-        function draw() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.strokeStyle = isOwner ? "#ff007f33" : "#00f2ff33";
-            stars.forEach(s => {
-                ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke();
-                s.y += s.s; if(s.y > canvas.height) s.y = -20;
-            });
-            requestAnimationFrame(draw);
-        }
-        initStars(); draw();
-        window.addEventListener('resize', initStars);
-    </script>
+    window.addEventListener('resize', init);
+    init(); animate();
+</script>
 </body>
 </html>
