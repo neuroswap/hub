@@ -24,8 +24,12 @@
         /* AUTH GATE */
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: #080808; border: 2px solid var(--primary); padding: 40px; border-radius: 25px; width: 400px; text-align: center; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
-        input, textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 14px; color: white; border-radius: 12px; margin-bottom: 12px; outline: none; }
+        input, textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 14px; color: white; border-radius: 12px; margin-bottom: 12px; outline: none; font-family: 'Inter'; }
         input:focus { border-color: var(--primary); background: rgba(0, 242, 255, 0.05); }
+
+        /* TOS MODAL */
+        #tos-gate { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .tos-box { background: #080808; border: 1px solid var(--border); padding: 30px; border-radius: 20px; width: 450px; text-align: left; }
 
         /* MAIN LAYOUT */
         #main-ui { display: none; height: 100vh; grid-template-columns: 280px 1fr; }
@@ -37,7 +41,7 @@
         .nav-tab:hover { color: #fff; background: rgba(255,255,255,0.05); }
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.08); border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
 
-        /* CONTENT AREA */
+        /* CONTENT */
         .content-area { padding: 50px; overflow-y: auto; }
         .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
         .tab-content.active { display: block; }
@@ -46,17 +50,16 @@
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 30px; margin-bottom: 25px; }
         .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 18px 35px; border-radius: 50px; border: none; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--primary); background: #fff; }
-        .btn-admin { background: var(--secondary); color: #fff; margin-top: 10px; width: 100%; }
+        .btn-admin { background: var(--secondary); color: #fff; margin-top: 10px; width: 100%; border-radius: 12px; padding: 12px; font-size: 0.7rem; }
 
-        /* CHAT & TICKETS */
+        /* CHAT */
         #chat-display { height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 18px; border: 1px solid var(--border); }
         .msg { background: rgba(255,255,255,0.04); padding: 12px; border-radius: 12px; font-size: 0.85rem; }
         .msg.owner { border-left: 4px solid var(--secondary); background: rgba(255, 0, 127, 0.05); }
         .msg b { color: var(--primary); font-family: 'Orbitron'; font-size: 0.7rem; margin-right: 8px; }
-        .ticket-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; border-radius: 15px; margin-bottom: 12px; position: relative; }
-        .del-btn { position: absolute; right: 15px; top: 15px; color: #ff4444; cursor: pointer; font-size: 0.7rem; }
 
-        #global-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--secondary); padding: 10px 30px; border-radius: 50px; font-weight: bold; z-index: 10001; display: none; }
+        #global-alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--secondary); padding: 10px 30px; border-radius: 50px; font-weight: bold; z-index: 10001; display: none; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body id="main-body">
@@ -71,6 +74,20 @@
         <input type="password" id="password" placeholder="Password">
         <button class="btn" style="width:100%" onclick="handleAuth()">AUTHORIZE</button>
         <p onclick="toggleAuth()" style="color:var(--primary); cursor:pointer; font-size:0.75rem; margin-top:20px; opacity: 0.6;">Switch to Sign-Up / Login</p>
+    </div>
+</div>
+
+<div id="tos-gate">
+    <div class="tos-box">
+        <h2 style="font-family: 'Orbitron'; color: var(--primary); margin-top:0;">TERMS OF SERVICE</h2>
+        <div style="height: 200px; overflow-y: auto; color: #888; font-size: 0.8rem; border-bottom: 1px solid var(--border); margin-bottom: 20px; padding-right: 10px;">
+            1. You agree that NeuroHub is provided "as-is".<br><br>
+            2. Using third-party tools (Kour.io) may result in game bans. Use at your own risk.<br><br>
+            3. The Optimizer V6 is safe but use it responsibly.<br><br>
+            4. Harassment in Global Chat will result in a permanent HWID/IP ban from our services.<br><br>
+            5. Do not share your account credentials.
+        </div>
+        <button class="btn" style="width:100%" onclick="acceptTos()">I AGREE & ENTER</button>
     </div>
 </div>
 
@@ -90,7 +107,7 @@
                 <div class="panel">
                     <h2 style="font-family:'Orbitron'; color:var(--primary);">V6 OPTIMIZER</h2>
                     <p style="color:#888;">Stand-alone PC Utility.</p>
-                    <a href="NeuroHub_V6_Elite.exe" download class="btn">DOWNLOAD EXE</a>
+                    <a href="NeuroHub_V6_Elite.exe" download="NeuroHub_V6_Elite.exe" class="btn">DOWNLOAD EXE</a>
                 </div>
                 <div class="panel">
                     <h2 style="font-family:'Orbitron'; color:var(--secondary);">KOUR.IO INTERNAL</h2>
@@ -133,9 +150,11 @@
                     <div id="admin-all-tickets" style="max-height: 300px; overflow-y:auto;"></div>
                 </div>
                 <div class="panel">
-                    <h3>CONTROLS</h3>
+                    <h3>SERVER ACTIONS</h3>
                     <button class="btn btn-admin" onclick="db.ref('messages').remove()">WIPE CHAT</button>
-                    <button class="btn btn-admin" onclick="toggleAlert()">TOGGLE ALERT</button>
+                    <button class="btn btn-admin" onclick="setCustomAlert()">SET CUSTOM ALERT</button>
+                    <button class="btn btn-admin" onclick="toggleAlert()">TOGGLE ALERT ON/OFF</button>
+                    <button class="btn btn-admin" style="background:#333;" onclick="db.ref('users').remove(); alert('Users Wiped');">WIPE ALL USERS</button>
                     <button class="btn btn-admin" style="background:#444;" onclick="viewUsers()">LIST USERS</button>
                     <div id="user-list-view" style="margin-top:15px; font-size:0.7rem; color:var(--primary);"></div>
                 </div>
@@ -167,22 +186,27 @@
         const u = document.getElementById('username').value.trim();
         const p = document.getElementById('password').value.trim();
         if(!u || !p) return;
-        if(u === "neuro(owner)" && p === "admin") { isOwner = true; enterHub(u); return; }
+        if(u === "neuro(owner)" && p === "admin") { isOwner = true; triggerTos(u); return; }
 
         const userRef = db.ref('users/' + u);
         const snap = await userRef.once('value');
         if(isSignUp) {
-            if(snap.exists()) alert("Taken!");
-            else { await userRef.set({ pass: p }); enterHub(u); }
+            if(snap.exists()) alert("User already exists!");
+            else { await userRef.set({ pass: p }); triggerTos(u); }
         } else {
-            if(snap.exists() && snap.val().pass === p) enterHub(u);
-            else alert("Invalid!");
+            if(snap.exists() && snap.val().pass === p) triggerTos(u);
+            else alert("Invalid Credentials!");
         }
     }
 
-    function enterHub(name) {
+    function triggerTos(name) {
         currentUser = name;
         document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('tos-gate').style.display = 'flex';
+    }
+
+    function acceptTos() {
+        document.getElementById('tos-gate').style.display = 'none';
         document.getElementById('main-ui').style.display = 'grid';
         if(isOwner) document.getElementById('admin-tab').style.display = 'flex';
         initStreams();
@@ -194,8 +218,9 @@
             const m = document.createElement('div');
             m.className = `msg ${d.owner ? 'owner' : ''}`;
             m.innerHTML = `<b>${d.user.toUpperCase()}</b> ${d.text}`;
-            document.getElementById('chat-display').appendChild(m);
-            document.getElementById('chat-display').scrollTop = document.getElementById('chat-display').scrollHeight;
+            const display = document.getElementById('chat-display');
+            display.appendChild(m);
+            display.scrollTop = display.scrollHeight;
         });
 
         db.ref('tickets').on('value', s => {
@@ -246,18 +271,22 @@
     function toggleAlert() {
         db.ref('system_alert').once('value', s => {
             const active = s.val() ? !s.val().active : true;
-            db.ref('system_alert').set({ active, msg: "NEUROHUB: MAINTENANCE IN PROGRESS" });
+            db.ref('system_alert/active').set(active);
         });
+    }
+
+    function setCustomAlert() {
+        const msg = prompt("Enter Custom Alert Text:");
+        if(msg) db.ref('system_alert').set({ active: true, msg: "NEUROHUB: " + msg.toUpperCase() });
     }
 
     async function viewUsers() {
         const snap = await db.ref('users').once('value');
         const view = document.getElementById('user-list-view');
-        view.innerHTML = "USERS: <br>";
+        view.innerHTML = "REGISTERED USERS: <br>";
         snap.forEach(u => { view.innerHTML += `> ${u.key}<br>`; });
     }
 
-    // Visuals
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
