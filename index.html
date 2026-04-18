@@ -24,10 +24,10 @@
         
         .nav-tab { padding: 14px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.65rem; color: #555; display: flex; align-items: center; gap: 12px; letter-spacing: 1px; }
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.05); border: 1px solid var(--primary); }
-        .nav-tab.special { color: var(--secondary); }
+        .nav-tab.special { color: var(--secondary); border: 1px solid var(--secondary); margin-top: 10px; }
 
         .content-area { padding: 50px; overflow-y: auto; position: relative; }
-        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; height: 100%; }
         .tab-content.active { display: block; }
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
         
@@ -43,7 +43,10 @@
         .user-pill img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--primary); }
         .logout-menu { position: absolute; bottom: 85px; left: 15px; width: calc(100% - 30px); background: #080808; border: 1px solid var(--secondary); border-radius: 10px; display: none; padding: 10px; z-index: 200; }
 
-        /* Sub-tab styling for cheats */
+        /* Dashboard Centering */
+        #dash { display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; }
+
+        /* Sub-tab styling */
         .sub-nav { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .sub-tab { font-family: 'Orbitron'; font-size: 0.6rem; color: #444; cursor: pointer; padding: 8px 15px; border-radius: 5px; letter-spacing: 1px; }
         .sub-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.1); }
@@ -76,6 +79,7 @@
         <div class="nav-tab" onclick="showTab('support', this)">SUPPORT</div>
         <div class="nav-tab" onclick="showTab('events', this)">EVENTS</div>
         <div class="nav-tab" onclick="showTab('info', this)">INFO</div>
+        
         <div id="admin-tab" class="nav-tab special" style="display:none;" onclick="showTab('admin', this)">OWNER PANEL</div>
 
         <div class="logout-menu" id="l-menu"><button class="btn btn-secondary" onclick="logout()">TERMINATE SESSION</button></div>
@@ -89,7 +93,9 @@
     </div>
 
     <div class="content-area">
-        <div id="dash" class="tab-content active"><div id="welcome-area"></div></div>
+        <div id="dash" class="tab-content active">
+            <div id="welcome-area"></div>
+        </div>
 
         <div id="opt" class="tab-content">
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">SYSTEM OPTIMIZATION</h2>
@@ -107,7 +113,6 @@
 
         <div id="cheats" class="tab-content">
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">GAME MODULES</h2>
-            
             <div class="sub-nav">
                 <div class="sub-tab active" onclick="showSubTab('cheat-browser', this)">BROWSER</div>
                 <div class="sub-tab" onclick="showSubTab('cheat-roblox', this)">ROBLOX</div>
@@ -117,13 +122,8 @@
             <div id="cheat-browser" class="cheat-sub-content active">
                 <div class="panel">
                     <h3 style="color:var(--secondary); font-family:'Orbitron';">KOUR.IO INTERNAL</h3>
-                    <p style="font-size:0.8rem; color:#666;">Aimbot, ESP, Movement. (Tampermonkey required).</p>
+                    <p style="font-size:0.8rem; color:#666;">Aimbot, ESP, Movement.</p>
                     <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL SCRIPT</a>
-                </div>
-                <div class="panel">
-                    <h3 style="color:var(--primary); font-family:'Orbitron';">KRUNKER.IO ELITE</h3>
-                    <p style="font-size:0.8rem; color:#666;">Premium Bypass: Silent Aim, ESP, No Recoil, and Wallbang exploitation.</p>
-                    <a href="https://www.tampermonkey.net/script_installation.php#url=https://github.com/neuroswap/vghveF/raw/refs/heads/main/KRUNKER.IO.USER.JS" class="btn">INSTALL VIA TAMPERMONKEY</a>
                 </div>
             </div>
 
@@ -146,7 +146,6 @@
         <div id="support" class="tab-content">
             <h2 style="font-family:'Orbitron';">SUPPORT TICKETS</h2>
             <div class="panel">
-                <p style="font-size:0.8rem; color:#888;">Issue with a tool? Open a ticket below.</p>
                 <input type="text" id="ticket-subject" placeholder="Subject">
                 <textarea id="ticket-msg" rows="4" placeholder="Describe the issue..."></textarea>
                 <button class="btn btn-secondary" onclick="sendTicket()">SUBMIT TICKET</button>
@@ -161,17 +160,17 @@
         <div id="info" class="tab-content">
             <h2 style="font-family:'Orbitron';">PROJECT INFO</h2>
             <div class="panel">
-                <p style="font-size:0.8rem; color:#888;"><b>Status:</b> Undetected</p>
-                <p style="font-size:0.8rem; color:#888;"><b>Developer:</b> Zayden / NeuroSwap</p>
-                <p style="font-size:0.8rem; color:#888;"><b>Platform:</b> GitHub Pages</p>
+                <p><b>Status:</b> Undetected</p>
+                <p><b>Developer:</b> Zayden / NeuroSwap</p>
             </div>
         </div>
 
         <div id="admin" class="tab-content">
             <h2 style="font-family:'Orbitron'; color:var(--secondary);">OWNER PANEL</h2>
             <div class="panel">
-                <input type="text" id="ban-id" placeholder="User ID">
-                <button class="btn btn-secondary">BLACKLIST ID</button>
+                <p style="color:#888; font-size:0.75rem; margin-bottom:15px;">WELCOME BACK, ZAYDEN.</p>
+                <input type="text" id="ban-id" placeholder="Discord User ID to Blacklist">
+                <button class="btn btn-secondary" onclick="alert('System Ready')">BLACKLIST ID</button>
             </div>
         </div>
     </div>
@@ -189,7 +188,9 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const OWNER_ID = "1494822241089880205"; 
+    
+    // YOUR UPDATED OWNER ID
+    const OWNER_ID = "1486348575536582736"; 
 
     function loginWithDiscord() {
         const clientID = "1494822241089880205";
@@ -233,13 +234,18 @@
             const nick = localStorage.getItem('nNick');
             document.getElementById('pill-name').innerText = nick;
             document.getElementById('pill-img').src = localStorage.getItem('nPFP');
+            
+            // BIG CENTERED WELCOME
             document.getElementById('welcome-area').innerHTML = `
-                <div style="margin-top:50px; text-align:center;">
-                    <img src="${localStorage.getItem('nPFP')}" style="width:110px; border-radius:50%; border:2px solid var(--primary); margin-bottom:25px;">
-                    <h1 style="font-family:'Orbitron'; letter-spacing: 4px; font-size:1.8rem;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1>
-                </div>
+                <img src="${localStorage.getItem('nPFP')}" style="width:140px; border-radius:50%; border:3px solid var(--primary); margin-bottom:40px; box-shadow: 0 0 30px rgba(0,242,255,0.3);">
+                <h1 style="font-family:'Orbitron'; letter-spacing: 8px; font-size:3.5rem; margin:0;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1>
+                <h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:10px; font-size:1.2rem; margin-top:20px; opacity:0.8;">TO THE FUTURE OF CHEATING</h2>
             `;
-            if (id === 1486348575536582736) document.getElementById('admin-tab').style.display = 'flex';
+
+            // UNLOCK OWNER PANEL IF ID MATCHES
+            if (id === OWNER_ID) {
+                document.getElementById('admin-tab').style.display = 'flex';
+            }
         }
         initStars(); drawStars();
     };
