@@ -16,12 +16,12 @@
         body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
         #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; }
         
-        #tos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .tos-box { background: #080808; border: 1px solid var(--secondary); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; text-align: left; }
+        #tos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .tos-box { background: #080808; border: 1px solid var(--secondary); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
         .tos-content { height: 250px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 15px; font-size: 0.75rem; color: #888; border: 1px solid #222; margin: 20px 0; line-height: 1.6; }
         
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .auth-box { background: #080808; border: 2px solid var(--primary); padding: 50px; border-radius: 30px; width: 420px; text-align: center; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
+        .auth-box { background: #080808; border: 2px solid var(--primary); padding: 50px; border-radius: 30px; width: 420px; text-align: center; }
 
         #main-ui { display: none; height: 100vh; grid-template-columns: 280px 1fr; }
         .sidebar { background: rgba(0,0,0,0.95); border-right: 1px solid var(--border); padding: 30px 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
@@ -30,12 +30,11 @@
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.05); border: 1px solid var(--primary); }
         .nav-tab.special { color: var(--secondary); border: 1px solid var(--secondary); margin-top: 10px; }
 
-        .content-area { padding: 50px; overflow-y: auto; position: relative; height: 100vh; width: 100%; }
+        .content-area { padding: 50px; overflow-y: auto; position: relative; height: 100vh; }
         .tab-content { display: none; animation: fadeIn 0.4s ease forwards; width: 100%; }
         
-        /* Dashboard Flex Fix */
-        .tab-content#dash.active { display: flex !important; align-items: center; justify-content: center; text-align: center; flex-direction: column; height: 100%; }
-        /* Normal Tabs Fix */
+        /* Dashboard Only Centering */
+        #dash.active { display: flex !important; align-items: center; justify-content: center; text-align: center; flex-direction: column; height: 100%; }
         .tab-content.active:not(#dash) { display: block !important; }
 
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
@@ -107,8 +106,13 @@
         <div id="opt" class="tab-content">
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">SYSTEM OPTIMIZATION</h2>
             <div class="panel">
-                <h3 style="font-family:'Orbitron';">NEUROHUB ELITE V6</h3>
-                <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD</a>
+                <h3 style="font-family:'Orbitron';">NEUROHUB ELITE V6 (PC)</h3>
+                <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD PC UTILITY</a>
+            </div>
+            <div class="panel">
+                <h3 style="font-family:'Orbitron'; color:var(--primary);">NEURO BROWSER OPTIMIZER</h3>
+                <p style="font-size:0.8rem; color:#666;">RAM Monitoring and browser-specific CMD tweaks.</p>
+                <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494860593985749154/browser_elite.exe" class="btn btn-secondary">DOWNLOAD BROWSER TWEAKER</a>
             </div>
         </div>
 
@@ -120,10 +124,17 @@
                 <div class="sub-tab" onclick="showSubTab('cheat-cs2', this)">CS2</div>
             </div>
             <div id="cheat-browser" class="cheat-sub-content active">
-                <div class="panel"><h3>KOUR.IO INTERNAL</h3><a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL</a></div>
+                <div class="panel">
+                    <h3>KOUR.IO INTERNAL</h3>
+                    <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL KOUR</a>
+                </div>
+                <div class="panel">
+                    <h3>KRUNKER.IO ELITE</h3>
+                    <a href="https://www.tampermonkey.net/script_installation.php#url=https://github.com/neuroswap/vghveF/raw/refs/heads/main/KRUNKER.IO.USER.JS" class="btn">INSTALL KRUNKER</a>
+                </div>
             </div>
             <div id="cheat-roblox" class="cheat-sub-content">
-                <div class="panel"><h3>XENO EXECUTOR</h3><a href="https://xeno.onl" class="btn">DOWNLOAD</a></div>
+                <div class="panel"><h3>XENO EXECUTOR</h3><a href="https://xeno.onl" class="btn">DOWNLOAD XENO</a></div>
             </div>
             <div id="cheat-cs2" class="cheat-sub-content">
                 <div class="panel"><h3>CS2 EXTERNAL</h3><p style="color:var(--secondary)">IN DEVELOPMENT</p></div>
@@ -137,7 +148,7 @@
 
         <div id="admin" class="tab-content">
             <h2 style="font-family:'Orbitron'; color:var(--secondary);">OWNER PANEL</h2>
-            <div class="panel"><p>Welcome, Zayden.</p><input type="text" placeholder="ID"><button class="btn btn-secondary">BAN</button></div>
+            <div class="panel"><p>Welcome, Zayden.</p><input type="text" placeholder="User ID"><button class="btn btn-secondary">BAN</button></div>
         </div>
     </div>
 </div>
