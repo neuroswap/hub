@@ -16,6 +16,11 @@
         body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
         #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; }
         
+        /* TOS MODAL */
+        #tos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .tos-box { background: #080808; border: 1px solid var(--secondary); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; text-align: left; }
+        .tos-content { height: 300px; overflow-y: scroll; background: rgba(0,0,0,0.5); padding: 15px; font-size: 0.75rem; color: #888; border: 1px solid #222; margin: 20px 0; line-height: 1.6; }
+        
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: #080808; border: 2px solid var(--primary); padding: 50px; border-radius: 30px; width: 420px; text-align: center; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
 
@@ -26,27 +31,23 @@
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.05); border: 1px solid var(--primary); }
         .nav-tab.special { color: var(--secondary); border: 1px solid var(--secondary); margin-top: 10px; }
 
-        .content-area { padding: 50px; overflow-y: auto; position: relative; }
-        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; height: 100%; }
+        .content-area { padding: 50px; overflow-y: auto; position: relative; height: 100vh; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
         .tab-content.active { display: block; }
+        
+        #dash.active { display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; height: 100%; }
+
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
         
         .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.7rem; width: 100%; text-align: center; text-decoration: none; display: block; margin-top: 10px; letter-spacing: 1px; }
         .btn-discord { background: #5865F2; color: white; border-bottom: 3px solid #3b448b; }
         .btn-secondary { background: var(--secondary); color: white; }
         
-        input, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: white; border-radius: 5px; margin-top: 10px; font-family: 'Inter'; }
-        
         .version-tag { position: fixed; bottom: 20px; right: 20px; font-family: 'Orbitron'; font-size: 0.6rem; color: #333; letter-spacing: 2px; }
 
         .user-pill { margin-top: auto; background: var(--glass); border: 1px solid var(--border); padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .user-pill img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--primary); }
-        .logout-menu { position: absolute; bottom: 85px; left: 15px; width: calc(100% - 30px); background: #080808; border: 1px solid var(--secondary); border-radius: 10px; display: none; padding: 10px; z-index: 200; }
 
-        /* Dashboard Centering */
-        #dash { display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; }
-
-        /* Sub-tab styling */
         .sub-nav { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .sub-tab { font-family: 'Orbitron'; font-size: 0.6rem; color: #444; cursor: pointer; padding: 8px 15px; border-radius: 5px; letter-spacing: 1px; }
         .sub-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.1); }
@@ -61,12 +62,31 @@
 <canvas id="starfield"></canvas>
 <div class="version-tag">NEUROHUB V1.0.4-ELITE</div>
 
+<div id="tos-overlay">
+    <div class="tos-box">
+        <h3 style="font-family:'Orbitron'; color:var(--secondary); margin:0;">LEGAL DISCLAIMER</h3>
+        <p style="font-size:0.6rem; color:#444;">PLEASE READ CAREFULLY</p>
+        <div class="tos-content">
+            <b style="color:#fff;">1. EDUCATIONAL USE ONLY</b><br>
+            NeuroHub provides software for educational and research purposes. We do not encourage the breaking of any Third-Party Terms of Service.<br><br>
+            <b style="color:#fff;">2. NO LIABILITY</b><br>
+            By using NeuroHub, you agree that Zayden/NeuroSwap is NOT responsible for any bans, hardware issues, or data loss that may occur. You use these tools at your own risk.<br><br>
+            <b style="color:#fff;">3. NO REFUNDS</b><br>
+            Access is provided as-is. We do not guarantee the uptime of third-party executors (like Xeno) or scripts.<br><br>
+            <b style="color:#fff;">4. ACCOUNT RESPONSIBILITY</b><br>
+            You are responsible for your own Discord account and its security. NeuroHub only logs your ID for access verification.
+        </div>
+        <button class="btn btn-secondary" onclick="acceptTos()">I AGREE & CONTINUE</button>
+        <button class="btn" style="background:#222; color:#555;" onclick="location.reload()">DECLINE</button>
+    </div>
+</div>
+
 <div id="auth-gate">
     <div class="auth-box">
         <img src="https://img.icons8.com/ios-filled/100/00f2ff/skull.png" style="width:80px; margin-bottom:20px; filter: drop-shadow(0 0 15px var(--primary));">
         <h2 style="font-family:'Orbitron'; color:var(--primary); letter-spacing:5px;">NEUROHUB</h2>
         <p style="font-size:0.7rem; color:#444; margin-bottom:30px; letter-spacing:2px;">WELCOME TO NEUROHUB</p>
-        <button class="btn btn-discord" onclick="loginWithDiscord()">SIGN UP WITH DISCORD</button>
+        <button class="btn btn-discord" onclick="checkTos()">SIGN UP WITH DISCORD</button>
     </div>
 </div>
 
@@ -79,15 +99,13 @@
         <div class="nav-tab" onclick="showTab('support', this)">SUPPORT</div>
         <div class="nav-tab" onclick="showTab('events', this)">EVENTS</div>
         <div class="nav-tab" onclick="showTab('info', this)">INFO</div>
-        
         <div id="admin-tab" class="nav-tab special" style="display:none;" onclick="showTab('admin', this)">OWNER PANEL</div>
 
-        <div class="logout-menu" id="l-menu"><button class="btn btn-secondary" onclick="logout()">TERMINATE SESSION</button></div>
-        <div class="user-pill" onclick="toggleLogout()">
+        <div class="user-pill" onclick="logout()">
             <img id="pill-img" src="">
             <div>
                 <div id="pill-name" style="font-size:0.75rem; font-weight:bold; color:var(--primary);">User</div>
-                <div style="font-size:0.55rem; color:#444;">SESSION ACTIVE</div>
+                <div style="font-size:0.55rem; color:#444;">LOGOUT</div>
             </div>
         </div>
     </div>
@@ -101,13 +119,7 @@
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">SYSTEM OPTIMIZATION</h2>
             <div class="panel">
                 <h3 style="font-family:'Orbitron';">NEUROHUB ELITE V6 (PC)</h3>
-                <p style="font-size:0.8rem; color:#666;">Full PC cleaning and latency reduction.</p>
                 <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD PC UTILITY</a>
-            </div>
-            <div class="panel">
-                <h3 style="font-family:'Orbitron'; color:var(--primary);">NEURO BROWSER OPTIMIZER</h3>
-                <p style="font-size:0.8rem; color:#666;">RAM Monitoring and 20+ browser-specific CMD tweaks.</p>
-                <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494860593985749154/browser_elite.exe" class="btn btn-secondary">DOWNLOAD BROWSER TWEAKER</a>
             </div>
         </div>
 
@@ -118,59 +130,30 @@
                 <div class="sub-tab" onclick="showSubTab('cheat-roblox', this)">ROBLOX</div>
                 <div class="sub-tab" onclick="showSubTab('cheat-cs2', this)">CS2</div>
             </div>
-
             <div id="cheat-browser" class="cheat-sub-content active">
                 <div class="panel">
                     <h3 style="color:var(--secondary); font-family:'Orbitron';">KOUR.IO INTERNAL</h3>
-                    <p style="font-size:0.8rem; color:#666;">Aimbot, ESP, Movement.</p>
                     <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL SCRIPT</a>
                 </div>
             </div>
-
             <div id="cheat-roblox" class="cheat-sub-content">
-                <div class="panel" style="border-color: var(--primary);">
-                    <h3 style="color:#fff; font-family:'Orbitron';">XENO EXECUTOR</h3>
-                    <p style="font-size:0.8rem; color:#666;">BEST FREE RELIABLE EXECUTOR</p>
+                <div class="panel">
+                    <h3 style="font-family:'Orbitron';">XENO EXECUTOR</h3>
+                    <p style="font-size:0.8rem; color:#666;">Undetected Roblox Executor</p>
                     <a href="https://xeno.onl" class="btn">DOWNLOAD XENO</a>
                 </div>
             </div>
-
             <div id="cheat-cs2" class="cheat-sub-content">
-                <div class="panel">
-                    <h3 style="color:var(--secondary); font-family:'Orbitron';">CS2 EXTERNAL</h3>
-                    <p style="font-size:0.8rem; color:var(--secondary);">IN DEVELOPMENT</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="support" class="tab-content">
-            <h2 style="font-family:'Orbitron';">SUPPORT TICKETS</h2>
-            <div class="panel">
-                <input type="text" id="ticket-subject" placeholder="Subject">
-                <textarea id="ticket-msg" rows="4" placeholder="Describe the issue..."></textarea>
-                <button class="btn btn-secondary" onclick="sendTicket()">SUBMIT TICKET</button>
-            </div>
-        </div>
-
-        <div id="events" class="tab-content">
-            <h2 style="font-family:'Orbitron';">COMMUNITY</h2>
-            <div class="panel"><h3>SCRIM NIGHT</h3><p>Friday @ 8:00 PM EST.</p></div>
-        </div>
-
-        <div id="info" class="tab-content">
-            <h2 style="font-family:'Orbitron';">PROJECT INFO</h2>
-            <div class="panel">
-                <p><b>Status:</b> Undetected</p>
-                <p><b>Developer:</b> Zayden / NeuroSwap</p>
+                <div class="panel"><h3 style="font-family:'Orbitron'; color:var(--secondary);">CS2 EXTERNAL</h3><p>IN DEVELOPMENT</p></div>
             </div>
         </div>
 
         <div id="admin" class="tab-content">
             <h2 style="font-family:'Orbitron'; color:var(--secondary);">OWNER PANEL</h2>
             <div class="panel">
-                <p style="color:#888; font-size:0.75rem; margin-bottom:15px;">WELCOME BACK, ZAYDEN.</p>
-                <input type="text" id="ban-id" placeholder="Discord User ID to Blacklist">
-                <button class="btn btn-secondary" onclick="alert('System Ready')">BLACKLIST ID</button>
+                <p>Access Granted, Zayden.</p>
+                <input type="text" id="ban-id" placeholder="Discord User ID">
+                <button class="btn btn-secondary" onclick="alert('Command Sent')">BLACKLIST</button>
             </div>
         </div>
     </div>
@@ -188,9 +171,21 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // YOUR UPDATED OWNER ID
     const OWNER_ID = "1486348575536582736"; 
+
+    function checkTos() {
+        if (localStorage.getItem('tos_accepted')) {
+            loginWithDiscord();
+        } else {
+            document.getElementById('tos-overlay').style.display = 'flex';
+        }
+    }
+
+    function acceptTos() {
+        localStorage.setItem('tos_accepted', 'true');
+        document.getElementById('tos-overlay').style.display = 'none';
+        loginWithDiscord();
+    }
 
     function loginWithDiscord() {
         const clientID = "1494822241089880205";
@@ -198,16 +193,6 @@
         const redirect = encodeURIComponent(currentPath);
         const url = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${redirect}&response_type=token&scope=identify%20guilds.join`;
         window.location.href = url;
-    }
-
-    function sendTicket() {
-        const id = localStorage.getItem('nID');
-        const nick = localStorage.getItem('nNick');
-        const subject = document.getElementById('ticket-subject').value;
-        const msg = document.getElementById('ticket-msg').value;
-        if(!subject || !msg) return alert("Fill all fields");
-        db.ref('tickets/').push({ uid: id, user: nick, subject: subject, message: msg, status: 'OPEN', time: Date.now() });
-        alert("Ticket Sent!");
     }
 
     window.onload = async () => {
@@ -235,24 +220,26 @@
             document.getElementById('pill-name').innerText = nick;
             document.getElementById('pill-img').src = localStorage.getItem('nPFP');
             
-            // BIG CENTERED WELCOME
             document.getElementById('welcome-area').innerHTML = `
                 <img src="${localStorage.getItem('nPFP')}" style="width:140px; border-radius:50%; border:3px solid var(--primary); margin-bottom:40px; box-shadow: 0 0 30px rgba(0,242,255,0.3);">
                 <h1 style="font-family:'Orbitron'; letter-spacing: 8px; font-size:3.5rem; margin:0;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1>
                 <h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:10px; font-size:1.2rem; margin-top:20px; opacity:0.8;">TO THE FUTURE OF CHEATING</h2>
             `;
 
-            // UNLOCK OWNER PANEL IF ID MATCHES
-            if (id === OWNER_ID) {
-                document.getElementById('admin-tab').style.display = 'flex';
-            }
+            if (id === OWNER_ID) document.getElementById('admin-tab').style.display = 'flex';
         }
         initStars(); drawStars();
     };
 
     function showTab(t, el) { 
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(t).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => {
+            c.classList.remove('active');
+            if(c.id === 'dash') c.style.display = 'none'; 
+        });
+        const target = document.getElementById(t);
+        target.classList.add('active');
+        if(t === 'dash') target.style.display = 'flex'; else target.style.display = 'block';
+
         document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
@@ -262,11 +249,6 @@
         document.getElementById(t).classList.add('active');
         document.querySelectorAll('.sub-tab').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-    }
-
-    function toggleLogout() {
-        const menu = document.getElementById('l-menu');
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
     }
 
     function logout() { localStorage.clear(); location.reload(); }
