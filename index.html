@@ -43,6 +43,13 @@
         .user-pill img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--primary); }
         .logout-menu { position: absolute; bottom: 85px; left: 15px; width: calc(100% - 30px); background: #080808; border: 1px solid var(--secondary); border-radius: 10px; display: none; padding: 10px; z-index: 200; }
 
+        /* Sub-tab styling for cheats */
+        .sub-nav { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .sub-tab { font-family: 'Orbitron'; font-size: 0.6rem; color: #444; cursor: pointer; padding: 8px 15px; border-radius: 5px; letter-spacing: 1px; }
+        .sub-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.1); }
+        .cheat-sub-content { display: none; }
+        .cheat-sub-content.active { display: block; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -94,28 +101,45 @@
             <div class="panel">
                 <h3 style="font-family:'Orbitron'; color:var(--primary);">NEURO BROWSER OPTIMIZER</h3>
                 <p style="font-size:0.8rem; color:#666;">RAM Monitoring and 20+ browser-specific CMD tweaks.</p>
-                <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494860593985749154/browser_elite.exe?ex=69e424ea&is=69e2d36a&hm=61482f708d6b929c68c6054cfae2b34acc8f574ae7f56dbaf166b8496774fb5b&" class="btn btn-secondary">DOWNLOAD BROWSER TWEAKER</a>
+                <a href="https://cdn.discordapp.com/attachments/1494771382188245186/1494860593985749154/browser_elite.exe" class="btn btn-secondary">DOWNLOAD BROWSER TWEAKER</a>
             </div>
         </div>
 
         <div id="cheats" class="tab-content">
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">GAME MODULES</h2>
             
-            <div class="panel" style="border-color: var(--primary);">
-                <h3 style="color:#fff; font-family:'Orbitron';">XENO EXECUTOR (ROBLOX)</h3>
-                <p style="font-size:0.8rem; color:#666;">BEST FREE RELIABLE EXECUTOR</p>
-                <a href="https://xeno.onl" class="btn">DOWNLOAD XENO</a>
+            <div class="sub-nav">
+                <div class="sub-tab active" onclick="showSubTab('cheat-browser', this)">BROWSER</div>
+                <div class="sub-tab" onclick="showSubTab('cheat-roblox', this)">ROBLOX</div>
+                <div class="sub-tab" onclick="showSubTab('cheat-cs2', this)">CS2</div>
             </div>
 
-            <div class="panel">
-                <h3 style="color:var(--secondary); font-family:'Orbitron';">KOUR.IO INTERNAL</h3>
-                <p style="font-size:0.8rem; color:#666;">Aimbot, ESP, Movement. (Tampermonkey required).</p>
-                <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL SCRIPT</a>
+            <div id="cheat-browser" class="cheat-sub-content active">
+                <div class="panel">
+                    <h3 style="color:var(--secondary); font-family:'Orbitron';">KOUR.IO INTERNAL</h3>
+                    <p style="font-size:0.8rem; color:#666;">Aimbot, ESP, Movement. (Tampermonkey required).</p>
+                    <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL SCRIPT</a>
+                </div>
+                <div class="panel">
+                    <h3 style="color:var(--primary); font-family:'Orbitron';">KRUNKER.IO ELITE</h3>
+                    <p style="font-size:0.8rem; color:#666;">Premium Bypass: Silent Aim, ESP, No Recoil, and Wallbang exploitation.</p>
+                    <a href="https://www.tampermonkey.net/script_installation.php#url=https://github.com/neuroswap/vghveF/raw/refs/heads/main/KRUNKER.IO.USER.JS" class="btn">INSTALL VIA TAMPERMONKEY</a>
+                </div>
             </div>
-            <div class="panel">
-                <h3 style="color:var(--primary); font-family:'Orbitron';">KRUNKER.IO ELITE</h3>
-                <p style="font-size:0.8rem; color:#666;">Premium Bypass: Silent Aim, ESP, No Recoil, and Wallbang exploitation.</p>
-                <a href="https://www.tampermonkey.net/script_installation.php#url=https://github.com/neuroswap/vghveF/raw/refs/heads/main/KRUNKER.IO.USER.JS" class="btn">INSTALL VIA TAMPERMONKEY</a>
+
+            <div id="cheat-roblox" class="cheat-sub-content">
+                <div class="panel" style="border-color: var(--primary);">
+                    <h3 style="color:#fff; font-family:'Orbitron';">XENO EXECUTOR</h3>
+                    <p style="font-size:0.8rem; color:#666;">BEST FREE RELIABLE EXECUTOR</p>
+                    <a href="https://xeno.onl" class="btn">DOWNLOAD XENO</a>
+                </div>
+            </div>
+
+            <div id="cheat-cs2" class="cheat-sub-content">
+                <div class="panel">
+                    <h3 style="color:var(--secondary); font-family:'Orbitron';">CS2 EXTERNAL</h3>
+                    <p style="font-size:0.8rem; color:var(--secondary);">IN DEVELOPMENT</p>
+                </div>
             </div>
         </div>
 
@@ -123,7 +147,7 @@
             <h2 style="font-family:'Orbitron';">SUPPORT TICKETS</h2>
             <div class="panel">
                 <p style="font-size:0.8rem; color:#888;">Issue with a tool? Open a ticket below.</p>
-                <input type="text" id="ticket-subject" placeholder="Subject (e.g. Browser Tweaker Error)">
+                <input type="text" id="ticket-subject" placeholder="Subject">
                 <textarea id="ticket-msg" rows="4" placeholder="Describe the issue..."></textarea>
                 <button class="btn btn-secondary" onclick="sendTicket()">SUBMIT TICKET</button>
             </div>
@@ -169,7 +193,6 @@
 
     function loginWithDiscord() {
         const clientID = "1494822241089880205";
-        // Ensures the redirect points to whatever github.io URL you are on
         const currentPath = window.location.origin + window.location.pathname;
         const redirect = encodeURIComponent(currentPath);
         const url = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${redirect}&response_type=token&scope=identify%20guilds.join`;
@@ -184,8 +207,6 @@
         if(!subject || !msg) return alert("Fill all fields");
         db.ref('tickets/').push({ uid: id, user: nick, subject: subject, message: msg, status: 'OPEN', time: Date.now() });
         alert("Ticket Sent!");
-        document.getElementById('ticket-subject').value = "";
-        document.getElementById('ticket-msg').value = "";
     }
 
     window.onload = async () => {
@@ -216,10 +237,9 @@
                 <div style="margin-top:50px; text-align:center;">
                     <img src="${localStorage.getItem('nPFP')}" style="width:110px; border-radius:50%; border:2px solid var(--primary); margin-bottom:25px;">
                     <h1 style="font-family:'Orbitron'; letter-spacing: 4px; font-size:1.8rem;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1>
-                    <h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:6px; font-size:1rem; opacity:0.7;">TO THE FUTURE OF CHEATING</h2>
                 </div>
             `;
-            if (id === OWNER_ID) document.getElementById('admin-tab').style.display = 'flex';
+            if (id === 1486348575536582736) document.getElementById('admin-tab').style.display = 'flex';
         }
         initStars(); drawStars();
     };
@@ -228,6 +248,13 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.getElementById(t).classList.add('active');
         document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function showSubTab(t, el) {
+        document.querySelectorAll('.cheat-sub-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(t).classList.add('active');
+        document.querySelectorAll('.sub-tab').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
 
