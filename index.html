@@ -16,10 +16,9 @@
         body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
         #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; }
         
-        /* TOS MODAL */
         #tos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 20000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .tos-box { background: #080808; border: 1px solid var(--secondary); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; text-align: left; }
-        .tos-content { height: 300px; overflow-y: scroll; background: rgba(0,0,0,0.5); padding: 15px; font-size: 0.75rem; color: #888; border: 1px solid #222; margin: 20px 0; line-height: 1.6; }
+        .tos-content { height: 250px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 15px; font-size: 0.75rem; color: #888; border: 1px solid #222; margin: 20px 0; line-height: 1.6; }
         
         #auth-gate { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: #080808; border: 2px solid var(--primary); padding: 50px; border-radius: 30px; width: 420px; text-align: center; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
@@ -31,18 +30,20 @@
         .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.05); border: 1px solid var(--primary); }
         .nav-tab.special { color: var(--secondary); border: 1px solid var(--secondary); margin-top: 10px; }
 
-        .content-area { padding: 50px; overflow-y: auto; position: relative; height: 100vh; }
-        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
-        .tab-content.active { display: block; }
+        .content-area { padding: 50px; overflow-y: auto; position: relative; height: 100vh; width: 100%; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease forwards; width: 100%; }
         
-        #dash.active { display: flex; align-items: center; justify-content: center; text-align: center; flex-direction: column; height: 100%; }
+        /* Dashboard Flex Fix */
+        .tab-content#dash.active { display: flex !important; align-items: center; justify-content: center; text-align: center; flex-direction: column; height: 100%; }
+        /* Normal Tabs Fix */
+        .tab-content.active:not(#dash) { display: block !important; }
 
         .panel { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
-        
         .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.7rem; width: 100%; text-align: center; text-decoration: none; display: block; margin-top: 10px; letter-spacing: 1px; }
         .btn-discord { background: #5865F2; color: white; border-bottom: 3px solid #3b448b; }
         .btn-secondary { background: var(--secondary); color: white; }
         
+        input { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: white; border-radius: 5px; margin-top: 10px; }
         .version-tag { position: fixed; bottom: 20px; right: 20px; font-family: 'Orbitron'; font-size: 0.6rem; color: #333; letter-spacing: 2px; }
 
         .user-pill { margin-top: auto; background: var(--glass); border: 1px solid var(--border); padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
@@ -65,19 +66,12 @@
 <div id="tos-overlay">
     <div class="tos-box">
         <h3 style="font-family:'Orbitron'; color:var(--secondary); margin:0;">LEGAL DISCLAIMER</h3>
-        <p style="font-size:0.6rem; color:#444;">PLEASE READ CAREFULLY</p>
         <div class="tos-content">
-            <b style="color:#fff;">1. EDUCATIONAL USE ONLY</b><br>
-            NeuroHub provides software for educational and research purposes. We do not encourage the breaking of any Third-Party Terms of Service.<br><br>
-            <b style="color:#fff;">2. NO LIABILITY</b><br>
-            By using NeuroHub, you agree that Zayden/NeuroSwap is NOT responsible for any bans, hardware issues, or data loss that may occur. You use these tools at your own risk.<br><br>
-            <b style="color:#fff;">3. NO REFUNDS</b><br>
-            Access is provided as-is. We do not guarantee the uptime of third-party executors (like Xeno) or scripts.<br><br>
-            <b style="color:#fff;">4. ACCOUNT RESPONSIBILITY</b><br>
-            You are responsible for your own Discord account and its security. NeuroHub only logs your ID for access verification.
+            <b style="color:#fff;">1. EDUCATIONAL USE ONLY</b><br>NeuroHub software is for research. We don't encourage breaking ToS.<br><br>
+            <b style="color:#fff;">2. NO LIABILITY</b><br>Zayden is NOT responsible for bans or hardware issues. Use at your own risk.<br><br>
+            <b style="color:#fff;">3. NO REFUNDS</b><br>Access provided as-is.
         </div>
         <button class="btn btn-secondary" onclick="acceptTos()">I AGREE & CONTINUE</button>
-        <button class="btn" style="background:#222; color:#555;" onclick="location.reload()">DECLINE</button>
     </div>
 </div>
 
@@ -85,7 +79,6 @@
     <div class="auth-box">
         <img src="https://img.icons8.com/ios-filled/100/00f2ff/skull.png" style="width:80px; margin-bottom:20px; filter: drop-shadow(0 0 15px var(--primary));">
         <h2 style="font-family:'Orbitron'; color:var(--primary); letter-spacing:5px;">NEUROHUB</h2>
-        <p style="font-size:0.7rem; color:#444; margin-bottom:30px; letter-spacing:2px;">WELCOME TO NEUROHUB</p>
         <button class="btn btn-discord" onclick="checkTos()">SIGN UP WITH DISCORD</button>
     </div>
 </div>
@@ -96,8 +89,6 @@
         <div class="nav-tab active" onclick="showTab('dash', this)">DASHBOARD</div>
         <div class="nav-tab" onclick="showTab('opt', this)">OPTIMIZERS</div>
         <div class="nav-tab" onclick="showTab('cheats', this)">CHEATS</div>
-        <div class="nav-tab" onclick="showTab('support', this)">SUPPORT</div>
-        <div class="nav-tab" onclick="showTab('events', this)">EVENTS</div>
         <div class="nav-tab" onclick="showTab('info', this)">INFO</div>
         <div id="admin-tab" class="nav-tab special" style="display:none;" onclick="showTab('admin', this)">OWNER PANEL</div>
 
@@ -111,15 +102,13 @@
     </div>
 
     <div class="content-area">
-        <div id="dash" class="tab-content active">
-            <div id="welcome-area"></div>
-        </div>
+        <div id="dash" class="tab-content active"><div id="welcome-area"></div></div>
 
         <div id="opt" class="tab-content">
             <h2 style="font-family:'Orbitron'; letter-spacing:2px; margin-bottom:20px;">SYSTEM OPTIMIZATION</h2>
             <div class="panel">
-                <h3 style="font-family:'Orbitron';">NEUROHUB ELITE V6 (PC)</h3>
-                <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD PC UTILITY</a>
+                <h3 style="font-family:'Orbitron';">NEUROHUB ELITE V6</h3>
+                <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD</a>
             </div>
         </div>
 
@@ -131,74 +120,41 @@
                 <div class="sub-tab" onclick="showSubTab('cheat-cs2', this)">CS2</div>
             </div>
             <div id="cheat-browser" class="cheat-sub-content active">
-                <div class="panel">
-                    <h3 style="color:var(--secondary); font-family:'Orbitron';">KOUR.IO INTERNAL</h3>
-                    <a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL SCRIPT</a>
-                </div>
+                <div class="panel"><h3>KOUR.IO INTERNAL</h3><a href="https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js" class="btn btn-secondary">INSTALL</a></div>
             </div>
             <div id="cheat-roblox" class="cheat-sub-content">
-                <div class="panel">
-                    <h3 style="font-family:'Orbitron';">XENO EXECUTOR</h3>
-                    <p style="font-size:0.8rem; color:#666;">Undetected Roblox Executor</p>
-                    <a href="https://xeno.onl" class="btn">DOWNLOAD XENO</a>
-                </div>
+                <div class="panel"><h3>XENO EXECUTOR</h3><a href="https://xeno.onl" class="btn">DOWNLOAD</a></div>
             </div>
             <div id="cheat-cs2" class="cheat-sub-content">
-                <div class="panel"><h3 style="font-family:'Orbitron'; color:var(--secondary);">CS2 EXTERNAL</h3><p>IN DEVELOPMENT</p></div>
+                <div class="panel"><h3>CS2 EXTERNAL</h3><p style="color:var(--secondary)">IN DEVELOPMENT</p></div>
             </div>
+        </div>
+
+        <div id="info" class="tab-content">
+            <h2 style="font-family:'Orbitron';">PROJECT INFO</h2>
+            <div class="panel"><p><b>Status:</b> Undetected</p><p><b>Dev:</b> Zayden</p></div>
         </div>
 
         <div id="admin" class="tab-content">
             <h2 style="font-family:'Orbitron'; color:var(--secondary);">OWNER PANEL</h2>
-            <div class="panel">
-                <p>Access Granted, Zayden.</p>
-                <input type="text" id="ban-id" placeholder="Discord User ID">
-                <button class="btn btn-secondary" onclick="alert('Command Sent')">BLACKLIST</button>
-            </div>
+            <div class="panel"><p>Welcome, Zayden.</p><input type="text" placeholder="ID"><button class="btn btn-secondary">BAN</button></div>
         </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyC-tWfooosC689hzDUC4S5CXL7dJ3yANuc",
-        authDomain: "neuro-chat-8fe18.firebaseapp.com",
-        databaseURL: "https://neuro-chat-8fe18-default-rtdb.firebaseio.com",
-        projectId: "neuro-chat-8fe18",
-        storageBucket: "neuro-chat-8fe18.firebasestorage.app",
-        messagingSenderId: "490069277437",
-        appId: "1:490069277437:web:c17aaa860bf4ecfd7b1c94"
-    };
+    const firebaseConfig = { apiKey: "AIzaSyC-tWfooosC689hzDUC4S5CXL7dJ3yANuc", authDomain: "neuro-chat-8fe18.firebaseapp.com", databaseURL: "https://neuro-chat-8fe18-default-rtdb.firebaseio.com", projectId: "neuro-chat-8fe18", storageBucket: "neuro-chat-8fe18.firebasestorage.app", messagingSenderId: "490069277437", appId: "1:490069277437:web:c17aaa860bf4ecfd7b1c94" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const OWNER_ID = "1486348575536582736"; 
 
-    function checkTos() {
-        if (localStorage.getItem('tos_accepted')) {
-            loginWithDiscord();
-        } else {
-            document.getElementById('tos-overlay').style.display = 'flex';
-        }
-    }
-
-    function acceptTos() {
-        localStorage.setItem('tos_accepted', 'true');
-        document.getElementById('tos-overlay').style.display = 'none';
-        loginWithDiscord();
-    }
-
-    function loginWithDiscord() {
-        const clientID = "1494822241089880205";
-        const currentPath = window.location.origin + window.location.pathname;
-        const redirect = encodeURIComponent(currentPath);
-        const url = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${redirect}&response_type=token&scope=identify%20guilds.join`;
-        window.location.href = url;
-    }
+    function checkTos() { if (localStorage.getItem('tos_accepted')) loginWithDiscord(); else document.getElementById('tos-overlay').style.display = 'flex'; }
+    function acceptTos() { localStorage.setItem('tos_accepted', 'true'); document.getElementById('tos-overlay').style.display = 'none'; loginWithDiscord(); }
+    function loginWithDiscord() { const clientID = "1494822241089880205"; const currentPath = window.location.origin + window.location.pathname; const redirect = encodeURIComponent(currentPath); const url = `https://discord.com/api/oauth2/authorize?client_id=${clientID}&redirect_uri=${redirect}&response_type=token&scope=identify%20guilds.join`; window.location.href = url; }
 
     window.onload = async () => {
         const fragment = new URLSearchParams(window.location.hash.slice(1));
         const accessToken = fragment.get('access_token');
-
         if (accessToken) {
             const resp = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${accessToken}` } });
             const user = await resp.json();
@@ -211,7 +167,6 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-
         const id = localStorage.getItem('nID');
         if (id) {
             document.getElementById('auth-gate').style.display = 'none';
@@ -219,27 +174,15 @@
             const nick = localStorage.getItem('nNick');
             document.getElementById('pill-name').innerText = nick;
             document.getElementById('pill-img').src = localStorage.getItem('nPFP');
-            
-            document.getElementById('welcome-area').innerHTML = `
-                <img src="${localStorage.getItem('nPFP')}" style="width:140px; border-radius:50%; border:3px solid var(--primary); margin-bottom:40px; box-shadow: 0 0 30px rgba(0,242,255,0.3);">
-                <h1 style="font-family:'Orbitron'; letter-spacing: 8px; font-size:3.5rem; margin:0;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1>
-                <h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:10px; font-size:1.2rem; margin-top:20px; opacity:0.8;">TO THE FUTURE OF CHEATING</h2>
-            `;
-
+            document.getElementById('welcome-area').innerHTML = `<img src="${localStorage.getItem('nPFP')}" style="width:140px; border-radius:50%; border:3px solid var(--primary); margin-bottom:40px;"><h1 style="font-family:'Orbitron'; letter-spacing: 8px; font-size:3.5rem;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1><h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:10px; font-size:1.2rem;">TO THE FUTURE OF CHEATING</h2>`;
             if (id === OWNER_ID) document.getElementById('admin-tab').style.display = 'flex';
         }
         initStars(); drawStars();
     };
 
     function showTab(t, el) { 
-        document.querySelectorAll('.tab-content').forEach(c => {
-            c.classList.remove('active');
-            if(c.id === 'dash') c.style.display = 'none'; 
-        });
-        const target = document.getElementById(t);
-        target.classList.add('active');
-        if(t === 'dash') target.style.display = 'flex'; else target.style.display = 'block';
-
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(t).classList.add('active');
         document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
@@ -252,7 +195,6 @@
     }
 
     function logout() { localStorage.clear(); location.reload(); }
-
     const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let stars = [];
     function initStars() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; stars = []; for(let i=0; i<80; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, l:Math.random()*25+10, s:Math.random()*12+5}); }
     function drawStars() { ctx.clearRect(0,0,canvas.width, canvas.height); stars.forEach(s => { ctx.strokeStyle = "#00f2ff"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke(); s.y += s.s; if(s.y > canvas.height) s.y = -s.l; }); requestAnimationFrame(drawStars); }
