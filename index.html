@@ -2,336 +2,741 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEUROHUB | Elite Portal</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEUROHUB • v2.4.1_cheat-stable</title>
     <style>
-        :root { --primary: #00f2ff; --secondary: #ff007f; --bg: #010101; --glass: rgba(255, 255, 255, 0.03); --border: rgba(0, 242, 255, 0.2); --safe: #00ff88; --warn: #ffcc00; --danger: #ff4444; }
-        * { cursor: crosshair !important; box-sizing: border-box; transition: 0.2s ease; }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
-        #starfield { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; }
-        
-        /* AUTH & TOS */
-        #auth-gate, #tos-overlay, #admin-lock { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 50000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
-        .box-ui { background: #080808; border: 1px solid var(--primary); padding: 40px; border-radius: 20px; width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
-        
-        /* MAIN LAYOUT */
-        #main-ui { display: none; height: 100vh; grid-template-columns: 280px 1fr 300px; }
-        .sidebar { background: rgba(0,0,0,0.95); border-right: 1px solid var(--border); padding: 20px 15px; display: flex; flex-direction: column; gap: 8px; }
-        .content-area { padding: 40px; overflow-y: auto; height: 100vh; border-right: 1px solid var(--border); }
-        .right-bar { background: rgba(0,0,0,0.95); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', 'SF Mono', monospace;
+        }
 
-        /* TABS */
-        .nav-tab { padding: 14px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.65rem; color: #555; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; }
-        .nav-tab:hover { background: rgba(255,255,255,0.02); color: #fff; }
-        .nav-tab.active { color: var(--primary); background: rgba(0, 242, 255, 0.05); border: 1px solid var(--primary); }
-        .nav-tab.special { color: var(--secondary); border: 1px solid var(--secondary); margin-top: 10px; }
+        body {
+            background: radial-gradient(circle at 20% 30%, #0a0c12, #030507);
+            min-height: 100vh;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
 
-        /* WIDGETS */
-        .widget { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 15px; }
-        .widget-title { font-family: 'Orbitron'; font-size: 0.6rem; color: #444; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* CHAT */
-        #chat-box { height: 300px; overflow-y: auto; font-size: 0.7rem; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; }
-        .chat-msg { background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border-left: 2px solid var(--primary); }
-        .chat-input { background: #000; border: 1px solid #222; padding: 10px; color: #fff; width: 100%; border-radius: 8px; font-size: 0.7rem; margin-top: 10px; }
+        /* A2: MAIN CONTAINER — grid 250px sidebar + 1fr main + 320px right panel */
+        .neuro-dashboard {
+            max-width: 1600px;
+            min-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 250px 1fr 320px;
+            gap: 0;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
 
-        /* FEED */
-        #activity-feed { height: 150px; overflow-y: auto; font-size: 0.6rem; color: #666; }
-        .feed-item { margin-bottom: 5px; border-bottom: 1px solid #111; padding-bottom: 5px; }
+        /* A3: SIDEBAR BACKGROUND */
+        .sidebar {
+            background: linear-gradient(135deg, #0a0f1a, #05080f);
+            border-right: 1px solid rgba(0,255,255,0.2);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* MODAL */
-        #product-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 60000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(25px); }
-        .modal-box { background: #070707; border: 1px solid var(--border); width: 95%; max-width: 900px; border-radius: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px; animation: modalIn 0.3s ease; }
-        .risk-meter { height: 4px; width: 100%; background: #111; border-radius: 2px; margin: 10px 0; position: relative; }
-        .risk-fill { height: 100%; border-radius: 2px; box-shadow: 0 0 10px currentColor; }
+        /* A1: HEADER LOGO */
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+            padding: 0 1.5rem 2rem 1.5rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(0,255,255,0.2);
+            margin-bottom: 2rem;
+        }
 
-        /* UTILS */
-        .btn { background: var(--primary); color: #000; font-family: 'Orbitron'; font-weight: 900; padding: 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.7rem; width: 100%; text-align: center; display: block; text-decoration: none; }
-        .btn-secondary { background: var(--secondary); color: white; }
-        .user-pill { margin-top: auto; background: var(--glass); border: 1px solid var(--border); padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .user-pill img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--primary); }
+        .menu-item {
+            padding: 12px 24px;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 150ms;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-left: 3px solid transparent;
+        }
 
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-        .cheat-card { background: #080808; border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-        .cheat-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        /* B6: HOVER EFFECT */
+        .menu-item:hover {
+            background: #ffffff10;
+        }
 
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        #dash.active { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
+        /* B5: ACTIVE STATE */
+        .menu-item.active {
+            border-left: 3px solid #0ff;
+            background: #0ff10;
+            color: #0ff;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* MAIN PANEL */
+        .main-panel {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+            overflow-y: auto;
+            min-height: 600px;
+        }
+
+        /* A4: RIGHT PANEL BACKGROUND */
+        .right-panel {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid rgba(0,255,255,0.2);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* OWNER PANEL (C1-C4) */
+        .owner-card {
+            background: rgba(0, 20, 30, 0.6);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #0ff33;
+        }
+        .owner-title {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .welcome-puff {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0ff;
+            margin-top: 8px;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #0ff;
+            border-radius: 50%;
+            background: #0ff22;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 12px auto 0;
+            font-weight: bold;
+            color: #0ff;
+        }
+
+        /* CHAT SECTION */
+        .chat-container, .activity-container, .status-container {
+            background: #0a0e14cc;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        .chat-messages {
+            height: 280px;
+            overflow-y: auto;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            background: #00000040;
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .chat-message {
+            border-bottom: 1px solid #2a3a4a;
+            padding: 6px;
+        }
+        .chat-time { color: #0ff; font-size: 10px; }
+        .chat-author { color: #ffaa44; font-weight: bold; }
+        .chat-text { color: #ddd; word-break: break-word; }
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+        }
+        #chatInput {
+            flex: 1;
+            background: #000;
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        #sendChatBtn {
+            background: #0ff22;
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* ACTIVITY FEED */
+        .activity-feed {
+            height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+            font-family: monospace;
+            background: #00000060;
+            border-radius: 8px;
+            padding: 6px;
+        }
+        .activity-entry {
+            padding: 4px;
+            border-bottom: 1px solid #1e2a36;
+            color: #aaa;
+        }
+
+        /* STATUS INDICATORS */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .online-dot { background: #0f0; box-shadow: 0 0 6px #0f0; animation: pulseGreen 1s infinite; }
+        .degraded-dot { background: #ff0; animation: blinkYellow 0.5s infinite; }
+        .offline-dot { background: #f00; }
+        .connected-dot { background: #0f0; animation: pulseGreen 1s infinite; }
+        .reconnecting-dot { background: #ffa500; animation: blinkYellow 0.5s infinite; }
+        .failed-dot { background: #f00; }
+
+        @keyframes pulseGreen { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes blinkYellow { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        /* OPTIMIZER BUTTONS */
+        .optimizer-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 1rem;
+        }
+        .opt-btn {
+            background: #11161f;
+            border: 1px solid #0ff;
+            padding: 16px;
+            border-radius: 12px;
+            color: #0ff;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+        .cheat-counter {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            background: #00000060;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        canvas { background: #0a0c14; border-radius: 12px; width: 100%; height: auto; }
+        .info-stats p { margin: 8px 0; font-size: 13px; border-bottom: 1px solid #2a3a4a; padding: 6px; }
+        .toast-msg {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0ff;
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            z-index: 9999;
+            animation: fadeOut 3s forwards;
+        }
+        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        .logout-btn {
+            margin-top: auto;
+            background: #c00030;
+            border: none;
+            padding: 12px;
+            margin: 20px 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #ff0040; }
+        .disabled-btn { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
-<body onclick="playHover()">
+<body>
 
-<canvas id="starfield"></canvas>
-
-<div id="admin-lock" style="display:none;">
-    <div class="box-ui" style="border-color: var(--secondary);">
-        <h3 style="font-family:'Orbitron'; color:var(--secondary);">ADMIN AUTH REQUIRED</h3>
-        <p style="font-size:0.7rem; color:#555;">Enter Security PIN</p>
-        <input type="password" id="admin-pin" class="chat-input" placeholder="****" style="text-align:center; font-size:1.5rem; letter-spacing:10px;">
-        <button class="btn btn-secondary" style="margin-top:20px;" onclick="verifyAdmin()">UNLOCK PANEL</button>
-        <button class="btn" style="margin-top:10px; background:transparent; color:#444;" onclick="showTab('dash', document.querySelector('.nav-tab'))">CANCEL</button>
-    </div>
-</div>
-
-<div id="product-modal">
-    <div class="modal-box">
-        <div class="modal-left">
-            <img id="m-img" style="width:100%; border-radius:15px; border:1px solid var(--primary);" src="">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
-                <button class="btn" style="background:#222; color:#fff;" onclick="closeProduct()">CLOSE</button>
-                <a id="m-link" href="#" class="btn" onclick="logActivity('Downloaded product')">INSTALL</a>
-            </div>
-        </div>
-        <div class="modal-right">
-            <h2 id="m-title" style="font-family:'Orbitron'; color:var(--primary); margin:0;">PRODUCT</h2>
-            <div id="m-risk-container">
-                <div class="risk-meter"><div id="m-risk-fill" class="risk-fill"></div></div>
-                <div id="m-risk-text" style="font-size:0.6rem; font-family:'Orbitron'; margin-bottom:15px;">RISK: UNKNOWN</div>
-            </div>
-            <p id="m-desc" style="font-size:0.8rem; color:#777; line-height:1.6;"></p>
-            
-            <div class="widget" style="margin-top:20px; flex-grow:1; display:flex; flex-direction:column;">
-                <div class="widget-title">Reviews</div>
-                <div id="review-container" style="overflow-y:auto; flex-grow:1; max-height:150px; font-size:0.7rem;"></div>
-                <div style="display:flex; gap:5px; margin-top:10px;">
-                    <input id="rev-input" class="chat-input" style="margin:0;" placeholder="Write a review...">
-                    <button class="btn" style="width:80px;" onclick="postReview()">POST</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="auth-gate">
-    <div class="box-ui">
-        <img src="https://img.icons8.com/ios-filled/100/00f2ff/skull.png" style="width:60px; margin-bottom:20px;">
-        <h2 style="font-family:'Orbitron'; letter-spacing:5px;">NEUROHUB</h2>
-        <button class="btn" style="background:#5865F2; color:#fff;" onclick="loginWithDiscord()">LOGIN WITH DISCORD</button>
-    </div>
-</div>
-
-<div id="main-ui">
+<div class="neuro-dashboard" id="dashboardRoot">
+    <!-- SIDEBAR -->
     <div class="sidebar">
-        <h2 style="font-family:'Orbitron'; color:var(--primary); text-align:center; font-size:0.9rem; margin-bottom:30px;">NEUROHUB</h2>
-        <div class="nav-tab active" onclick="showTab('dash', this)">DASHBOARD</div>
-        <div class="nav-tab" onclick="showTab('opt', this)">OPTIMIZERS</div>
-        <div class="nav-tab" onclick="showTab('cheats', this)">CHEATS</div>
-        <div class="nav-tab" onclick="showTab('info', this)">INFO</div>
-        <div id="admin-tab" class="nav-tab special" style="display:none;" onclick="tryAdmin()">OWNER PANEL</div>
-
-        <div class="user-pill" onclick="logout()">
-            <img id="pill-img" src="">
-            <div>
-                <div id="pill-name" style="font-size:0.7rem; font-weight:bold; color:var(--primary);">User</div>
-                <div style="font-size:0.5rem; color:#444;">LOGOUT</div>
-            </div>
-        </div>
+        <div class="logo">NEUROHUB</div>
+        <div class="menu-item active" data-view="dashboard">DASHBOARD</div>
+        <div class="menu-item" data-view="optimizers">OPTIMIZERS</div>
+        <div class="menu-item" data-view="charts">CHARTS</div>
+        <div class="menu-item" data-view="info">INFO</div>
+        <button id="logoutBtnMain" class="logout-btn">PUFF LOGOUT</button>
     </div>
 
-    <div class="content-area">
-        <div id="dash" class="tab-content active">
-            <div id="welcome-area"></div>
-        </div>
-
-        <div id="opt" class="tab-content">
-            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">SYSTEM UTILITIES</h2>
-            <div class="widget">
-                <h3>NEUROHUB ELITE V6</h3>
-                <p style="font-size:0.8rem; color:#555;">40+ System Tweaks for Zero Latency.</p>
-                <a href="https://cdn.discordapp.com/attachments/1220455589808308254/1224814986424320141/NeuroHub_Elite.exe" class="btn">DOWNLOAD UTILITY</a>
-            </div>
-        </div>
-
-        <div id="cheats" class="tab-content">
-            <h2 style="font-family:'Orbitron'; margin-bottom:20px;">MODULE BROWSER</h2>
-            <div class="product-grid">
-                <div class="cheat-card">
-                    <h3 style="font-family:'Orbitron'; color:var(--primary); font-size:0.9rem;">KOUR.IO INTERNAL</h3>
-                    <div class="risk-meter"><div class="risk-fill" style="width:95%; background:var(--safe); color:var(--safe);"></div></div>
-                    <button class="btn" onclick="openProduct('KOUR.IO INTERNAL', 'https://i.postimg.cc/XNRC2Rvf/Capture.png', 'Elite aimbot and ESP.', 'https://raw.githubusercontent.com/neuroswap/kour/main/kour_script.user.js', 95, 'kour')">VIEW MODULE</button>
-                </div>
-                <div class="cheat-card">
-                    <h3 style="font-family:'Orbitron'; font-size:0.9rem;">XENO EXECUTOR</h3>
-                    <div class="risk-meter"><div class="risk-fill" style="width:85%; background:var(--safe); color:var(--safe);"></div></div>
-                    <button class="btn" onclick="openProduct('XENO EXECUTOR', 'https://www.image2url.com/r2/default/images/1776715384161-724eb697-4dec-4577-a3b6-5e4cb2364a3a.jfif', 'Level 7 Roblox Executor.', 'https://xeno.onl', 85, 'xeno')">VIEW MODULE</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="admin" class="tab-content">
-            <h2 style="font-family:'Orbitron'; color:var(--secondary);">OWNER COMMAND CENTER</h2>
-            <div class="widget">
-                <p>Welcome back, Zayden. All systems nominal.</p>
-                <button class="btn btn-secondary" onclick="db.ref('feed').remove()">CLEAR ACTIVITY FEED</button>
-            </div>
-        </div>
+    <!-- MAIN DYNAMIC PANEL -->
+    <div class="main-panel" id="mainPanel">
+        <!-- dashboard default view -->
+        <div id="viewContainer"></div>
     </div>
 
-    <div class="right-bar">
-        <div class="widget" style="display:flex; flex-direction:column; flex-grow:1;">
-            <div class="widget-title">Global Chat</div>
-            <div id="chat-box"></div>
-            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChat()">
+    <!-- RIGHT PANEL: GLOBAL CHAT + LIVE ACTIVITY + SERVER STATUS -->
+    <div class="right-panel">
+        <!-- OWNER PANEL (C1-C4) -->
+        <div class="owner-card">
+            <div class="owner-title">OWNER PANEL</div>
+            <div class="welcome-puff">WELCOME PUFF</div>
+            <div class="subtitle">TO THE FUTURE OF CHEATING</div>
+            <div class="avatar">P</div>
         </div>
 
-        <div class="widget">
-            <div class="widget-title">Live Activity</div>
-            <div id="activity-feed"></div>
+        <!-- GLOBAL CHAT SECTION (D1-D8) -->
+        <div class="chat-container">
+            <div style="font-weight:bold; margin-bottom:8px;">💬 GLOBAL CHAT</div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type a message..." maxlength="280">
+                <button id="sendChatBtn">SEND</button>
+            </div>
         </div>
 
-        <div class="widget">
-            <div class="widget-title">Server Status</div>
-            <div style="font-size:0.7rem; color:var(--safe);">● NEURO-AUTH: ONLINE</div>
-            <div style="font-size:0.7rem; color:var(--safe);">● FIREBASE-DB: CONNECTED</div>
+        <!-- LIVE ACTIVITY (E1-E6) -->
+        <div class="activity-container">
+            <div style="font-weight:bold;">📡 LIVE ACTIVITY</div>
+            <div id="activityFeed" class="activity-feed"></div>
+        </div>
+
+        <!-- SERVER STATUS (F1-F5) -->
+        <div class="status-container">
+            <div style="font-weight:bold;">🔌 SERVER STATUS</div>
+            <div class="status-item"><span><span id="neuroDot" class="status-dot online-dot"></span> NEURO-AUTH:</span> <span id="neuroStatusText">ONLINE</span></div>
+            <div class="status-item"><span><span id="fbDot" class="status-dot connected-dot"></span> FIREBASE-DB:</span> <span id="fbStatusText">CONNECTED</span></div>
         </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyC-tWfooosC689hzDUC4S5CXL7dJ3yANuc", authDomain: "neuro-chat-8fe18.firebaseapp.com", databaseURL: "https://neuro-chat-8fe18-default-rtdb.firebaseio.com", projectId: "neuro-chat-8fe18", storageBucket: "neuro-chat-8fe18.firebasestorage.app", messagingSenderId: "490069277437", appId: "1:490069277437:web:c17aaa860bf4ecfd7b1c94" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const OWNER_ID = "1486348575536582736";
-    let currentPID = null;
-
-    // --- SYSTEM LOGIC ---
-    function logActivity(act) {
-        const name = localStorage.getItem('nNick') || "Guest";
-        db.ref('feed').push({ text: `<b>${name}</b> ${act}`, time: Date.now() });
+    // ---------- GLOBAL STATE & SPECIFIC IMPLEMENTATION ----------
+    // K4: session flag
+    localStorage.setItem('neurohub_session', 'active');
+    
+    // D5: chat storage key
+    const CHAT_STORAGE_KEY = 'neurohub_chat';
+    // K2: cheat credits sessionStorage
+    let cheatCredits = parseInt(sessionStorage.getItem('neurohub_credits') || '0');
+    if (isNaN(cheatCredits)) cheatCredits = 0;
+    
+    // E1: in-memory activity (max 20)
+    let activityLog = [];
+    const MAX_ACTIVITY = 20;
+    
+    // D1: max chat messages = 50
+    let chatMessages = [];
+    const MAX_CHAT = 50;
+    
+    // F3/F4: status intervals & states
+    let neuroStates = ['ONLINE', 'DEGRADED', 'OFFLINE'];
+    let fbStates = ['CONNECTED', 'RECONNECTING', 'FAILED'];
+    let neuroIdx = 0;
+    let fbIdx = 0;
+    let neuroInterval, fbInterval, uptimeInterval;
+    
+    // uptime seconds (I2)
+    let startTime = Date.now();
+    let uptimeSeconds = 0;
+    
+    // session id (I3)
+    const sessionId = crypto.randomUUID ? crypto.randomUUID().split('-')[0] : Math.random().toString(16).substr(2,8);
+    const lastAuthTime = new Date().toLocaleString(); // I4
+    
+    // Helper: Toast (L3 duration 3s)
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
-
-    function playHover() {
-        // Subtle futuristic click (can link to a real .mp3 if you have one)
-        const a = new AudioContext(); const o = a.createOscillator(); const g = a.createGain();
-        o.type = 'sine'; o.frequency.setValueAtTime(800, a.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, a.currentTime + 0.1);
-        o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + 0.1);
+    
+    // L4: Console logging every user action
+    function logAction(action) {
+        console.log(`[NEUROHUB] action: ${action}`);
     }
-
-    function tryAdmin() {
-        document.getElementById('admin-lock').style.display = 'flex';
+    
+    // Add activity (E2,E3,E6)
+    function addActivity(type, detail) {
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        let entry = `[${timeStr}] ${type} : ${detail}`;
+        activityLog.unshift(entry);
+        if(activityLog.length > MAX_ACTIVITY) activityLog.pop();
+        renderActivityFeed();
+        logAction(`activity_added: ${type}`);
     }
-
-    function verifyAdmin() {
-        const pin = document.getElementById('admin-pin').value;
-        if(pin === "1337") { // Your PIN
-            document.getElementById('admin-lock').style.display = 'none';
-            showTab('admin', document.getElementById('admin-tab'));
-            logActivity("accessed the Owner Panel");
-        } else {
-            alert("ACCESS DENIED");
-            document.getElementById('admin-pin').value = "";
+    
+    // Render activity
+    function renderActivityFeed() {
+        const feedDiv = document.getElementById('activityFeed');
+        if(!feedDiv) return;
+        feedDiv.innerHTML = activityLog.map(entry => `<div class="activity-entry">${escapeHtml(entry)}</div>`).join('');
+    }
+    
+    // Escape html
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Render chat (D8 auto-scroll)
+    function renderChat() {
+        const container = document.getElementById('chatMessages');
+        if(!container) return;
+        container.innerHTML = chatMessages.map(msg => `
+            <div class="chat-message">
+                <span class="chat-time">[${msg.time}]</span>
+                <span class="chat-author">${escapeHtml(msg.author)}:</span>
+                <span class="chat-text">${escapeHtml(msg.content)}</span>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    // Save chat to localStorage (K1)
+    function persistChat() {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatMessages));
+    }
+    
+    // D6,D3,D4,D7: send message logic
+    function sendMessage(rawInput) {
+        if(!rawInput || rawInput.trim() === '') {
+            showToast("Message cannot be empty"); // D7
+            return false;
+        }
+        if(rawInput.length > 280) rawInput = rawInput.substring(0,280); // D2 enforcement
+        let filtered = rawInput;
+        const badWords = ['cheat','hack','exploit','inject','crack','bypass'];
+        for(let word of badWords) {
+            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+            filtered = filtered.replace(regex, '[####]');
+        }
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        const newMsg = {
+            id: Date.now() + '_' + Math.floor(Math.random()*10000),
+            author: 'PUFF',   // D3 hardcoded
+            content: filtered,
+            time: timeStr,
+            timestamp: now.toISOString()
+        };
+        chatMessages.unshift(newMsg);
+        if(chatMessages.length > MAX_CHAT) chatMessages.pop(); // D1
+        renderChat();
+        persistChat();
+        // E4: auto-add to activity
+        const preview = filtered.length > 30 ? filtered.substring(0,30)+'...' : filtered;
+        addActivity('CHAT', `PUFF sent: "${preview}"`);
+        logAction(`chat_sent: ${preview}`);
+        return true;
+    }
+    
+    // Load chat from storage with L1 invalid json handling
+    function loadChatFromStorage() {
+        try {
+            const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+            if(stored) {
+                const parsed = JSON.parse(stored);
+                if(Array.isArray(parsed)) {
+                    chatMessages = parsed.slice(0, MAX_CHAT);
+                    renderChat();
+                    return;
+                }
+            }
+            chatMessages = [];
+        } catch(e) {
+            showToast("Corrupted data reset");
+            chatMessages = [];
+            localStorage.removeItem(CHAT_STORAGE_KEY);
         }
     }
-
-    // --- TAB LOGIC ---
-    function showTab(t, el) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(t).classList.add('active');
-        document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
+    
+    // Optimizer functions (G1-G4)
+    function memoryCleaner() {
+        const removed = Math.min(10, chatMessages.length);
+        if(removed > 0) {
+            chatMessages = chatMessages.slice(removed);
+            renderChat();
+            persistChat();
+            showToast(`Cleaned ${removed} messages`);
+            addActivity('OPTIMIZER', `MEMORY CLEANER removed ${removed} messages`);
+        } else {
+            showToast("No messages to clean");
+        }
+        logAction("optimizer memory_cleaner");
     }
-
-    // --- CHAT LOGIC ---
-    function sendChat() {
-        const inp = document.getElementById('chat-input');
-        if(!inp.value) return;
-        db.ref('chat').push({ name: localStorage.getItem('nNick'), text: inp.value, pfp: localStorage.getItem('nPFP') });
-        inp.value = "";
+    
+    function latencyBoost() {
+        showToast("Latency reduced by 12ms (simulated)");
+        addActivity('OPTIMIZER', `LATENCY BOOST applied (fake -12ms)`);
+        logAction("optimizer latency_boost");
     }
-
-    db.ref('chat').limitToLast(20).on('value', s => {
-        const box = document.getElementById('chat-box'); box.innerHTML = "";
-        s.forEach(m => {
-            const d = m.val();
-            box.innerHTML += `<div class="chat-msg"><b>${d.name}:</b> ${d.text}</div>`;
+    
+    function cheatEngine() {
+        if(cheatCredits < 999) {
+            cheatCredits++;
+            sessionStorage.setItem('neurohub_credits', cheatCredits);
+            updateCheatCounter();
+            showToast(`CHEAT CREDITS: ${cheatCredits}`);
+            addActivity('OPTIMIZER', `CHEAT ENGINE → credits: ${cheatCredits}`);
+        } else {
+            showToast("MAX CREDITS (999) reached");
+        }
+        logAction("optimizer cheat_engine");
+    }
+    
+    function logSpoofer() {
+        addActivity('SPOOF', `Fake packet injected`);
+        showToast("Spoof entry added to activity");
+        logAction("optimizer log_spoofer");
+    }
+    
+    function updateCheatCounter() {
+        const counterDiv = document.getElementById('cheatCreditCounter');
+        if(counterDiv) counterDiv.innerText = `💀 CHEAT CREDITS: ${cheatCredits} / 999`;
+    }
+    
+    // CHARTS: H1-H3 bar chart canvas
+    let chartCanvas = null;
+    function renderChart() {
+        const container = document.getElementById('viewContainer');
+        if(!container) return;
+        container.innerHTML = `<canvas id="barChartCanvas" width="600" height="300" style="width:100%; max-width:600px; background:#0a0c14; border-radius:16px;"></canvas>`;
+        const canvas = document.getElementById('barChartCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const data = [4,12,7,19,22,33,28];
+        const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const draw = () => {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.fillStyle = "#0a0c14";
+            ctx.fillRect(0,0,w,h);
+            const barWidth = (w / data.length) * 0.6;
+            const startX = (w / data.length - barWidth)/2;
+            const maxVal = 40;
+            for(let i=0; i<data.length; i++) {
+                const barHeight = (data[i]/maxVal) * (h-50);
+                const x = i * (w/data.length) + startX;
+                const y = h - barHeight - 20;
+                ctx.fillStyle = "#0ff";
+                ctx.fillRect(x, y, barWidth, barHeight);
+                ctx.fillStyle = "#ccc";
+                ctx.font = "10px monospace";
+                ctx.fillText(labels[i], x+5, h-8);
+                ctx.fillStyle = "#0ff";
+                ctx.fillText(data[i], x+5, y-4);
+            }
+        };
+        draw();
+        window.addEventListener('resize', ()=> { if(document.getElementById('barChartCanvas')) draw(); });
+    }
+    
+    // INFO panel (I1,I2,I3,I4)
+    function renderInfo() {
+        const container = document.getElementById('viewContainer');
+        if(!container) return;
+        function updateUptimeDisplay() {
+            const secs = Math.floor((Date.now() - startTime)/1000);
+            const hours = Math.floor(secs/3600);
+            const mins = Math.floor((secs%3600)/60);
+            const sec = secs%60;
+            return `${hours}h ${mins}m ${sec}s`;
+        }
+        container.innerHTML = `
+            <div style="background:#0a0e1a; border-radius:20px; padding:20px;">
+                <h3 style="color:#0ff;">🔧 SYSTEM INFO</h3>
+                <p><strong>Version:</strong> NEUROHUB v2.4.1_cheat-stable</p>
+                <p><strong>Uptime:</strong> <span id="uptimeSpan">${updateUptimeDisplay()}</span></p>
+                <p><strong>Session ID:</strong> ${sessionId}</p>
+                <p><strong>Last Auth:</strong> ${lastAuthTime}</p>
+            </div>
+        `;
+        const upSpan = document.getElementById('uptimeSpan');
+        if(upSpan) {
+            const interval = setInterval(() => {
+                if(!document.getElementById('uptimeSpan')) { clearInterval(interval); return; }
+                const secs = Math.floor((Date.now() - startTime)/1000);
+                const hours = Math.floor(secs/3600);
+                const mins = Math.floor((secs%3600)/60);
+                const sec = secs%60;
+                document.getElementById('uptimeSpan').innerText = `${hours}h ${mins}m ${sec}s`;
+            }, 1000);
+        }
+    }
+    
+    // OPTIMIZERS view
+    function renderOptimizers() {
+        const container = document.getElementById('viewContainer');
+        if(!container) return;
+        container.innerHTML = `
+            <div class="optimizer-grid">
+                <div class="opt-btn" id="optMemory">🧹 MEMORY CLEANER</div>
+                <div class="opt-btn" id="optLatency">⚡ LATENCY BOOST</div>
+                <div class="opt-btn" id="optCheat">💀 CHEAT ENGINE</div>
+                <div class="opt-btn" id="optSpoof">📡 LOG SPOOFER</div>
+            </div>
+            <div class="cheat-counter" id="cheatCreditCounter">💀 CHEAT CREDITS: ${cheatCredits} / 999</div>
+        `;
+        document.getElementById('optMemory')?.addEventListener('click', memoryCleaner);
+        document.getElementById('optLatency')?.addEventListener('click', latencyBoost);
+        document.getElementById('optCheat')?.addEventListener('click', cheatEngine);
+        document.getElementById('optSpoof')?.addEventListener('click', logSpoofer);
+        updateCheatCounter();
+    }
+    
+    // DASHBOARD default view
+    function renderDashboard() {
+        const container = document.getElementById('viewContainer');
+        if(container) container.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:300px; color:#0ff; font-size:20px;">⚡ NEUROHUB ACTIVE — SELECT TOOLS ⚡</div>`;
+    }
+    
+    // Menu switching (B1-B4)
+    function switchView(view) {
+        logAction(`switch_view: ${view}`);
+        if(view === 'dashboard') renderDashboard();
+        else if(view === 'optimizers') renderOptimizers();
+        else if(view === 'charts') renderChart();
+        else if(view === 'info') renderInfo();
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if(item.getAttribute('data-view') === view) item.classList.add('active');
+            else item.classList.remove('active');
         });
-        box.scrollTop = box.scrollHeight;
-    });
-
-    db.ref('feed').limitToLast(10).on('value', s => {
-        const feed = document.getElementById('activity-feed'); feed.innerHTML = "";
-        s.forEach(m => {
-            feed.innerHTML = `<div class="feed-item">${m.val().text}</div>` + feed.innerHTML;
-        });
-    });
-
-    // --- PRODUCT LOGIC ---
-    function openProduct(title, img, desc, link, safety, id) {
-        currentPID = id;
-        document.getElementById('m-title').innerText = title;
-        document.getElementById('m-img').src = img;
-        document.getElementById('m-desc').innerText = desc;
-        document.getElementById('m-link').href = link;
+    }
+    
+    // Status toggle intervals (F3,F4 exact timings)
+    function startStatusIntervals() {
+        if(neuroInterval) clearInterval(neuroInterval);
+        if(fbInterval) clearInterval(fbInterval);
+        neuroInterval = setInterval(() => {
+            neuroIdx = (neuroIdx+1) % neuroStates.length;
+            const state = neuroStates[neuroIdx];
+            const statusSpan = document.getElementById('neuroStatusText');
+            const dotSpan = document.getElementById('neuroDot');
+            if(statusSpan) statusSpan.innerText = state;
+            if(dotSpan) {
+                dotSpan.className = 'status-dot';
+                if(state === 'ONLINE') dotSpan.classList.add('online-dot');
+                else if(state === 'DEGRADED') dotSpan.classList.add('degraded-dot');
+                else dotSpan.classList.add('offline-dot');
+            }
+            addActivity('STATUS', `NEURO-AUTH → ${state}`);
+        }, 45000);
         
-        const fill = document.getElementById('m-risk-fill');
-        fill.style.width = safety + "%";
-        fill.style.color = safety > 80 ? 'var(--safe)' : (safety > 50 ? 'var(--warn)' : 'var(--danger)');
-        document.getElementById('m-risk-text').innerText = `DETECTION RISK: ${safety > 80 ? 'MINIMAL' : 'CAUTION'}`;
-
-        db.ref('reviews/' + id).on('value', snap => {
-            const cont = document.getElementById('review-container'); cont.innerHTML = "";
-            snap.forEach(r => {
-                const d = r.val();
-                cont.innerHTML = `<div style="margin-bottom:8px;"><b>${d.name}:</b> ${d.text}</div>` + cont.innerHTML;
+        fbInterval = setInterval(() => {
+            fbIdx = (fbIdx+1) % fbStates.length;
+            const state = fbStates[fbIdx];
+            const statusSpan = document.getElementById('fbStatusText');
+            const dotSpan = document.getElementById('fbDot');
+            if(statusSpan) statusSpan.innerText = state;
+            if(dotSpan) {
+                dotSpan.className = 'status-dot';
+                if(state === 'CONNECTED') dotSpan.classList.add('connected-dot');
+                else if(state === 'RECONNECTING') dotSpan.classList.add('reconnecting-dot');
+                else dotSpan.classList.add('failed-dot');
+            }
+            addActivity('STATUS', `FIREBASE-DB → ${state}`);
+        }, 27000);
+    }
+    
+    // J2-J5: LOGOUT strict
+    function performLogout() {
+        logAction("LOGOUT triggered");
+        if(neuroInterval) clearInterval(neuroInterval);
+        if(fbInterval) clearInterval(fbInterval);
+        if(uptimeInterval) clearInterval(uptimeInterval);
+        localStorage.removeItem('neurohub_session');
+        document.getElementById('chatInput').disabled = true;
+        document.getElementById('sendChatBtn').disabled = true;
+        document.getElementById('sendChatBtn').classList.add('disabled-btn');
+        document.getElementById('chatInput').classList.add('disabled-btn');
+        const mainView = document.getElementById('viewContainer');
+        if(mainView) mainView.innerHTML = `<div style="text-align:center; color:#f00; padding:40px;">SESSION TERMINATED — RELOAD PAGE</div>`;
+        const rightPanel = document.querySelector('.right-panel');
+        if(rightPanel) rightPanel.style.opacity = '0.5';
+        showToast("Session ended. Reload to restart.");
+    }
+    
+    // attach logout to all logout buttons
+    document.getElementById('logoutBtnMain')?.addEventListener('click', performLogout);
+    
+    // Event listeners and initializers
+    function init() {
+        loadChatFromStorage();
+        renderActivityFeed();
+        startStatusIntervals();
+        renderDashboard();
+        // menu listeners
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const view = item.getAttribute('data-view');
+                if(view) switchView(view);
             });
         });
-        document.getElementById('product-modal').style.display = 'flex';
+        document.getElementById('sendChatBtn')?.addEventListener('click', () => {
+            const input = document.getElementById('chatInput');
+            if(input && !input.disabled) {
+                if(sendMessage(input.value)) input.value = '';
+            } else if(input.disabled) showToast("Session terminated, reload page");
+        });
+        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && !e.target.disabled) {
+                e.preventDefault();
+                document.getElementById('sendChatBtn')?.click();
+            }
+        });
+        // activity click E6: console log details
+        document.getElementById('activityFeed')?.addEventListener('click', (e) => {
+            const entry = e.target.closest('.activity-entry')?.innerText;
+            if(entry) console.log("[NEUROHUB] Activity detail:", entry);
+        });
+        addActivity('LOGIN', 'PUFF session initialized');
+        logAction("page_loaded_full_spec");
+        // uptime interval I2
+        uptimeInterval = setInterval(() => {
+            if(document.getElementById('uptimeSpan')) {
+                const secs = Math.floor((Date.now() - startTime)/1000);
+                const hours = Math.floor(secs/3600);
+                const mins = Math.floor((secs%3600)/60);
+                const sec = secs%60;
+                const uptext = `${hours}h ${mins}m ${sec}s`;
+                const spanEl = document.getElementById('uptimeSpan');
+                if(spanEl) spanEl.innerText = uptext;
+            }
+        }, 1000);
     }
-
-    function postReview() {
-        const inp = document.getElementById('rev-input');
-        if(!inp.value) return;
-        db.ref('reviews/' + currentPID).push({ name: localStorage.getItem('nNick'), text: inp.value });
-        inp.value = "";
-        logActivity(`reviewed ${currentPID.toUpperCase()}`);
-    }
-
-    function closeProduct() { document.getElementById('product-modal').style.display = 'none'; }
-
-    // --- AUTH LOGIC ---
-    function loginWithDiscord() { 
-        const cid = "1494822241089880205"; 
-        const red = encodeURIComponent(window.location.origin + window.location.pathname); 
-        window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${cid}&redirect_uri=${red}&response_type=token&scope=identify`; 
-    }
-
-    window.onload = async () => {
-        const frag = new URLSearchParams(window.location.hash.slice(1));
-        if (frag.get('access_token')) {
-            const resp = await fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${frag.get('access_token')}` } });
-            const user = await resp.json();
-            localStorage.setItem('nID', user.id);
-            localStorage.setItem('nNick', user.global_name || user.username);
-            localStorage.setItem('nPFP', `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`);
-            window.history.replaceState({}, "", window.location.pathname);
-            logActivity("logged in");
-        }
-        const id = localStorage.getItem('nID');
-        if (id) {
-            document.getElementById('auth-gate').style.display = 'none'; document.getElementById('main-ui').style.display = 'grid';
-            const nick = localStorage.getItem('nNick');
-            document.getElementById('pill-name').innerText = nick; document.getElementById('pill-img').src = localStorage.getItem('nPFP');
-            document.getElementById('welcome-area').innerHTML = `<img src="${localStorage.getItem('nPFP')}" style="width:120px; border-radius:50%; border:3px solid var(--primary); margin-bottom:30px;"><h1 style="font-family:'Orbitron'; font-size:3rem;">WELCOME <span style="color:var(--primary);">${nick.toUpperCase()}</span></h1><h2 style="font-family:'Orbitron'; color:var(--secondary); letter-spacing:8px; font-size:1rem;">TO THE FUTURE OF CHEATING</h2>`;
-            if (id === OWNER_ID) document.getElementById('admin-tab').style.display = 'flex';
-        }
-        initStars(); drawStars();
-    };
-
-    function logout() { localStorage.clear(); location.reload(); }
-
-    // --- STARFIELD ---
-    const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let stars = [];
-    function initStars() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; for(let i=0; i<70; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, l:Math.random()*20+10, s:Math.random()*10+5}); }
-    function drawStars() { ctx.clearRect(0,0,canvas.width, canvas.height); stars.forEach(s => { ctx.strokeStyle = "#00f2ff22"; ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x, s.y+s.l); ctx.stroke(); s.y += s.s; if(s.y > canvas.height) s.y = -s.l; }); requestAnimationFrame(drawStars); }
+    init();
 </script>
 </body>
 </html>
